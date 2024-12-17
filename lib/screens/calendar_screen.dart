@@ -16,11 +16,11 @@ class _WeekCalendarState extends State<CalendarScreen> {
   });
 
   final Map<DateTime, List<Map<String, String>>> scheduleData = {
-    DateTime.utc(2024, 3, 16): [
+    DateTime.utc(2024, 12, 17): [
       {'title': 'Team Meeting', 'description': 'Discussion with the team', 'time': '10:00 AM'},
       {'title': 'PM Meeting', 'description': 'Tasks for the month', 'time': '1:00 PM'},
     ],
-    DateTime.utc(2024, 3, 17): [
+    DateTime.utc(2024, 12, 18): [
       {'title': 'One-to-one', 'description': 'Repeats every two weeks', 'time': '12:00 PM'}
     ],
   };
@@ -68,6 +68,11 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   setState(() {
                     _selectedDay = day;
                   });
+                  Navigator.push(context,
+                  MaterialPageRoute(
+                      builder: (context) => AddScheduleScreen(date: _selectedDay),
+                  ),
+                  );
                 },
                 child: Column(
                   children: [
