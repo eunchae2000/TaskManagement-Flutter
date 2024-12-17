@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
 
 class CalendarScreen extends StatefulWidget{
