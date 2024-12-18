@@ -1,33 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
+import 'package:provider/provider.dart';
 
-class CalendarScreen extends StatefulWidget{
+class CalendarScreen extends StatefulWidget {
   @override
   _WeekCalendarState createState() => _WeekCalendarState();
+  final List<Map<String, dynamic>>? schedules;
 
+  CalendarScreen({this.schedules});
 }
 
 class _WeekCalendarState extends State<CalendarScreen> {
   DateTime _selectedDay = DateTime.now();
-  final Color backgroundColor = Color(0xFFE87645);
-  final List<DateTime> weekDays = List.generate(7, (index){
-    return DateTime.now().subtract(Duration(days: DateTime.now().weekday-1-index));
-  });
 
-  final Map<DateTime, List<Map<String, String>>> scheduleData = {
-    DateTime.utc(2024, 12, 17): [
-      {'title': 'Team Meeting', 'description': 'Discussion with the team', 'time': '10:00 AM'},
-      {'title': 'PM Meeting', 'description': 'Tasks for the month', 'time': '1:00 PM'},
-    ],
-    DateTime.utc(2024, 12, 18): [
-      {'title': 'One-to-one', 'description': 'Repeats every two weeks', 'time': '12:00 PM'}
-    ],
-  };
+  final Color backgroundColor = Color(0xffFFD6E4);
+  final List<DateTime> weekDays = List.generate(7, (index) {
+    return DateTime.now()
+        .subtract(Duration(days: DateTime.now().weekday - 1 - index));
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.amber.shade50,
+      backgroundColor: Color(0xffe6f4f1),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,54 +39,81 @@ class _WeekCalendarState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildCalendarHeader(){
+  Widget _buildCalendarHeader() {
     return Container(
-      color: Colors.deepOrangeAccent,
+      color: Color(0xff78b1e0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text((_selectedDay.month).toString(),
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-          ),
-          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(
+              (_selectedDay.month).toString(),
+              style: TextStyle(
+                color: Color(0xffFcfcd4),
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddScheduleScreen(date: _selectedDay),
+                  ),
+                );
+              },
+              child: Icon(Icons.add),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xffe6f4f1),
+                shape: CircleBorder(),
+                padding: EdgeInsets.all(17.0),
+              ),
+            ),
+          ]),
           SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: weekDays.map((day){
-              bool isSelected = day.day == _selectedDay.day && day.month == _selectedDay.month && day.year == _selectedDay.year;
+            children: weekDays.map((day) {
+              bool isSelected = day.day == _selectedDay.day &&
+                  day.month == _selectedDay.month &&
+                  day.year == _selectedDay.year;
               return GestureDetector(
-                onTap: (){
+                onTap: () {
                   setState(() {
                     _selectedDay = day;
                   });
-                  Navigator.push(context,
-                  MaterialPageRoute(
-                      builder: (context) => AddScheduleScreen(date: _selectedDay),
-                  ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          AddScheduleScreen(date: _selectedDay),
+                    ),
                   );
                 },
                 child: Column(
                   children: [
-                    Text(_getWeekDayName(day.weekday),
-                    style: TextStyle(color: Colors.white, fontSize: 15),
+                    Text(
+                      _getWeekDayName(day.weekday),
+                      style: TextStyle(color: Color(0xffFcfcd4), fontSize: 16),
                     ),
                     SizedBox(height: 8),
                     Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.white : Colors.transparent,
+                        color:
+                            isSelected ? Color(0xffFcfcd4) : Colors.transparent,
                         shape: BoxShape.circle,
                       ),
                       child: Center(
                         child: Text(
                           day.day.toString(),
                           style: TextStyle(
-                            color: isSelected ? Colors.deepOrangeAccent: Colors.white,
+                            color: isSelected
+                                ? Color(0xff78b1e0)
+                                : Color(0xffFcfcd4),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -106,9 +129,9 @@ class _WeekCalendarState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildScheduleList(){
-    final selectedSchedules = scheduleData[_selectedDay] ?? [];
-    if(selectedSchedules.isEmpty){
+  Widget _buildScheduleList() {
+    final schedule = Provider.of<ScheduleProvider>(context).schedule;
+    if (schedule.isEmpty) {
       return Center(
         child: Text(
           'No schedules',
@@ -117,39 +140,69 @@ class _WeekCalendarState extends State<CalendarScreen> {
       );
     }
     return ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: selectedSchedules.length,
-        itemBuilder: (context, index){
-          final schedule = selectedSchedules[index];
-          return Container(
-            margin: EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
+      padding: EdgeInsets.all(16),
+      itemCount: schedule.length,
+      itemBuilder: (context, index) {
+        final task = schedule[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.all(12),
+
+                title: Text(
+                  task['title']!,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ],
-            ),
-            child: ListTile(
-              contentPadding: EdgeInsets.all(12),
-              title: Text(
-                schedule['title']!,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                subtitle: Text(
+                  '${task['startTime']} - ${task['endTime']}',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+                trailing:
+                Icon(Icons.arrow_forward_ios, color: Colors.grey.shade400),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CalendarScreen(),
+                      ));
+                },
               ),
-              subtitle: Text(
-                '${schedule['time']} - ${schedule['description']}',
-                style: TextStyle(color: Colors.grey.shade600),
-              ),
-              trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey.shade400),
-            ),
-          );
-        },);
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('${task['members'].join(',')}',
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  ),),
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    '${task['description']}',
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                  ),)
+                ],
+              )
+            ],
+          )
+        );
+      },
+    );
   }
-  String _getWeekDayName(int weekday){
+
+  String _getWeekDayName(int weekday) {
     switch (weekday) {
       case 1:
         return 'Mon';

@@ -8,7 +8,7 @@ class CalendarWithScheduleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ScheduleProvider(),
-      child: CalendarScreen(),
+      child: CalendarScreen(schedules: [],),
     );
   }
 }

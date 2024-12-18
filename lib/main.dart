@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management/providers/schedule_provider.dart';
+import 'package:task_management/screens/add_schedule_screen.dart';
 import 'package:task_management/screens/calendar_screen.dart';
 
 
@@ -16,43 +17,53 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Task Management',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    final List<Map<String, dynamic>> schedules = [
+      {
+        'date': '2024-12-18',               // 날짜
+        'startTime': '10:00 AM',             // 시작 시간
+        'endTime': '11:00 AM',               // 종료 시간
+        'title': 'Project Meeting',          // 일정 제목
+        'description': 'Discuss project progress and deadlines', // 일정 설명
+        'time': '10:00 AM - 11:00 AM',       // 시간 (병합된 형태로 사용 가능)
+        'members': ['Alice', 'Bob', 'Charlie'] // 참여 멤버 목록
+      },
+      {
+        'date': '2024-12-18',
+        'startTime': '1:00 PM',
+        'endTime': '2:00 PM',
+        'title': 'Team Lunch',
+        'description': 'Lunch with the team at the cafeteria',
+        'time': '1:00 PM - 2:00 PM',
+        'members': ['David', 'Ella', 'Frank']
+      },
+      {
+        'date': '2024-12-18',
+        'startTime': '6:00 PM',
+        'endTime': '7:00 PM',
+        'title': 'Workout Session',
+        'description': 'Evening workout at the gym',
+        'time': '6:00 PM - 7:00 PM',
+        'members': ['George', 'Hannah']
+      }
+    ];
+    return ChangeNotifierProvider(
+      create: (context) => ScheduleProvider(),
+      child: MaterialApp(
+        title: 'Task Management',
+        theme: ThemeData(
+          primarySwatch: Colors.amber,
+        ),
+        home: CalendarScreen(),
+        routes: {
+          '/add': (context) => AddScheduleScreen(),
+        },
       ),
-      home: CalendarScreen(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -65,23 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       _counter++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
