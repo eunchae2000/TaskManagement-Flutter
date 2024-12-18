@@ -76,7 +76,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                 child: Column(
                   children: [
                     Text(_getWeekDayName(day.weekday),
-                    style: TextStyle(color: Colors.white, fontSize: 32),
+                    style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                     SizedBox(height: 8),
                     Container(
