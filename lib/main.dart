@@ -1,14 +1,19 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
 import 'package:task_management/screens/calendar_screen.dart';
-
+import 'package:task_management/screens/register_screen.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(create: (_) => ScheduleProvider()..loadDate(),
-    child: MyApp(),
-  ),);
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ScheduleProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,12 +24,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> schedules = [
       {
-        'date': '2024-12-18',               // 날짜
-        'startTime': '10:00 AM',             // 시작 시간
-        'endTime': '11:00 AM',               // 종료 시간
-        'title': 'Project Meeting',          // 일정 제목
+        'date': '2024-12-18', // 날짜
+        'startTime': '10:00 AM', // 시작 시간
+        'endTime': '11:00 AM', // 종료 시간
+        'title': 'Project Meeting', // 일정 제목
         'description': 'Discuss project progress and deadlines', // 일정 설명
-        'time': '10:00 AM - 11:00 AM',       // 시간 (병합된 형태로 사용 가능)
+        'time': '10:00 AM - 11:00 AM', // 시간 (병합된 형태로 사용 가능)
         'members': ['Alice', 'Bob', 'Charlie'] // 참여 멤버 목록
       },
       {
@@ -56,6 +61,7 @@ class MyApp extends StatelessWidget {
         home: CalendarScreen(),
         routes: {
           '/add': (context) => AddScheduleScreen(),
+          '/register': (context) => RegisterScreen(),
         },
       ),
     );
@@ -84,31 +90,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(

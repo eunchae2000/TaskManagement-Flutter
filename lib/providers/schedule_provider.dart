@@ -2,10 +2,38 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import 'package:task_management/providers/schedule_service.dart';
+
 class ScheduleProvider with ChangeNotifier {
   List<Map<String, dynamic>> schedule = [];
-
   List<Map<String, dynamic>> get _schedule => List.unmodifiable(_schedule);
+
+  final ScheduleService _scheduleService = ScheduleService();
+  bool isAuthenticated = false;
+
+  Future<void> register(String username, String email, String password) async {
+    try {
+      await _scheduleService.register(username, email, password);
+      isAuthenticated = true;
+      notifyListeners();
+    } catch (e) {
+      isAuthenticated = false;
+      notifyListeners();
+      throw e;
+    }
+  }
+
+  Future<void> login(String email, String password) async{
+    try{
+      await _scheduleService.login(email, password);
+      isAuthenticated = true;
+      notifyListeners();
+    }catch(e){
+      isAuthenticated = false;
+      notifyListeners();
+      throw e;
+    }
+  }
 
   void addSchedule(DateTime date, String title, String description, String startTime, String endTime, List<String> members) {
     schedule.add({
