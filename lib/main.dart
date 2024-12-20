@@ -58,11 +58,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.amber,
         ),
-        home: CalendarScreen(),
-        routes: {
-          '/add': (context) => AddScheduleScreen(),
-          '/register': (context) => RegisterScreen(),
-        },
+        home: RegisterScreen(),
       ),
     );
   }

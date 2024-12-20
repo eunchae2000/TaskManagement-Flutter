@@ -12,14 +12,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   final ScheduleService scheduleService = ScheduleService();
+  bool isLoading = false;
 
   void register() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
-      await scheduleService.register(
-        usernameController.text,
-        emailController.text,
-        passwordController.text,
-      );
+      if (usernameController.text.isEmpty ||
+          emailController.text.isEmpty ||
+          passwordController.text.isEmpty) {
+        throw 'All fields are required';
+      }
+      await Future.wait([
+        scheduleService.register(
+          usernameController.text,
+          emailController.text,
+          passwordController.text,
+        ),
+      ]);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('User registered successfully')),
       );
@@ -27,6 +40,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to register: $e')),
       );
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -48,7 +63,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: passwordController,
                 decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true),
-            ElevatedButton(onPressed: register, child: Text('Register')),
+            isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(onPressed: register, child: Text('Register')),
           ],
         ),
       ),
