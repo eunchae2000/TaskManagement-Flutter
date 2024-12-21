@@ -14,6 +14,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final ScheduleService scheduleService = ScheduleService();
   bool isLoading = false;
+  bool _obscureText = true;
+
+  void _togglePasswordView() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   void register() async {
     try {
@@ -50,25 +57,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(
+        title: null,
+        automaticallyImplyLeading: false,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Create an\nAccount',
+                style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff2f4858)),
+              ),
+            ),
+            SizedBox(height: 30),
             TextField(
                 controller: usernameController,
-                decoration: InputDecoration(labelText: 'Username')),
+                decoration: customInputDecoration(
+                    labelText: 'Username', hintText: 'Gildong Hong',
+                suffixIcon: Icon(Icons.person))),
+            SizedBox(height: 15),
             TextField(
                 controller: emailController,
-                decoration: InputDecoration(labelText: 'Email')),
+                decoration: customInputDecoration(
+                    labelText: 'Email', hintText: 'gildong@example.com',
+                suffixIcon: Icon(Icons.email_outlined))),
+            SizedBox(height: 15),
             TextField(
                 controller: passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true),
-            ElevatedButton(onPressed: register, child: Text('Register')),
+                decoration: customInputDecoration(
+                  labelText: 'Password',
+                  hintText: 'xxxxxxxx',
+                  suffixIcon: Icon(Icons.visibility_off_outlined),
+                ),
+            obscureText: true,),
+            SizedBox(height: 50),
+            ElevatedButton(
+              onPressed: isLoading ? null : register,
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                backgroundColor: Color(0xFFFF4700),
+              ),
+              child: isLoading
+                  ? CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : Text(
+                      'Register',
+                      style: TextStyle(color: Color(0xFFfff6f0), fontSize: 20),
+                    ),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+InputDecoration customInputDecoration({
+  required String labelText,
+  required String hintText,
+  Widget? suffixIcon,
+}) {
+  return InputDecoration(
+    labelText: labelText,
+    hintText: hintText,
+    suffixIcon: suffixIcon,
+    filled: true,
+    fillColor: Color(0xffffe7d6),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15),
+      borderSide: BorderSide.none,
+    ),
+    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  );
 }

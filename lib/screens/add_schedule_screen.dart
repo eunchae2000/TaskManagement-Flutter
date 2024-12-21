@@ -281,7 +281,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   shape: RoundedRectangleBorder(
                     side: BorderSide(color: Colors.black26, width: 1.0),
                     // 테두리 색과 두께 설정
-                    borderRadius: BorderRadius.circular(20.0), // 모서리 둥글게 설정
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 5.0),
                 ),
