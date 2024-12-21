@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
+import 'package:task_management/screens/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -15,33 +16,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
 
   void register() async {
-    setState(() {
-      isLoading = true;
-    });
-
     try {
       if (usernameController.text.isEmpty ||
           emailController.text.isEmpty ||
           passwordController.text.isEmpty) {
         throw 'All fields are required';
       }
-      await Future.wait([
-        scheduleService.register(
-          usernameController.text,
-          emailController.text,
-          passwordController.text,
-        ),
-      ]);
+      final response = await scheduleService.register(usernameController.text,
+          emailController.text, passwordController.text);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User registered successfully')),
-      );
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User registered successfully')),
+        );
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to register: ${response['message']}')),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to register: $e')),
       );
     } finally {
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -63,9 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: passwordController,
                 decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true),
-            isLoading
-                ? CircularProgressIndicator()
-                : ElevatedButton(onPressed: register, child: Text('Register')),
+            ElevatedButton(onPressed: register, child: Text('Register')),
           ],
         ),
       ),

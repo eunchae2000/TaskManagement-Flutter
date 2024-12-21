@@ -39,7 +39,7 @@ class ScheduleService {
     }
   }
 
-  Future<void> register(
+  Future<Map<String, dynamic>> register(
       String user_name, String user_email, String user_password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register'),
@@ -52,24 +52,35 @@ class ScheduleService {
     );
 
     if (response.statusCode == 200) {
-      print('Successfully');
+      final responseData = jsonDecode(response.body);
+      return {
+        'success': responseData['success'] ?? false,
+        'message': responseData['message'] ?? 'Unknown error',
+      };
     } else {
-      throw 'Failed to register user: ${response.body}';
+      throw {
+        'success': false,
+        'message': 'Server error: ${response.statusCode}, ${response.body}',
+      };
     }
   }
 
-  Future<void> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String user_email, String user_password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        'user_email': email,
-        'user_password': password,
+        'user_email': user_email,
+        'user_password': user_password,
       }),
     );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final responseData = jsonDecode(response.body);
+      return{
+        'success': true,
+        'message': responseData['message'],
+      };
     } else {
       throw Exception('Failed to login');
     }

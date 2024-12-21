@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 class CalendarScreen extends StatefulWidget {
   @override
   _WeekCalendarState createState() => _WeekCalendarState();
+
   final List<Map<String, dynamic>>? schedules;
 
   CalendarScreen({this.schedules});

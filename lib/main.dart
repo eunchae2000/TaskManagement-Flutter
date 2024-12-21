@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
 import 'package:task_management/screens/calendar_screen.dart';
+import 'package:task_management/screens/login_screen.dart';
 import 'package:task_management/screens/register_screen.dart';
 
 void main() {
@@ -58,7 +59,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.amber,
         ),
-        home: RegisterScreen(),
+        home: LoginScreen(),
       ),
     );
   }
