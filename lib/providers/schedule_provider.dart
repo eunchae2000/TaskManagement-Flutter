@@ -11,6 +11,15 @@ class ScheduleProvider with ChangeNotifier {
   final ScheduleService _scheduleService = ScheduleService();
   bool isAuthenticated = false;
 
+  DateTime _selectedDate = DateTime.now();
+
+  DateTime get selectedDate => _selectedDate;
+
+  void setSelectedDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
+
   Future<void> register(String username, String email, String password) async {
     try {
       await _scheduleService.register(username, email, password);

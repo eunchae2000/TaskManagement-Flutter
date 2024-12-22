@@ -21,6 +21,14 @@ class _WeekCalendarState extends State<CalendarScreen> {
         .subtract(Duration(days: DateTime.now().weekday - 1 - index));
   });
 
+  final List<String> StringDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+  List<DateTime> getWeekDates() {
+    final DateTime now = DateTime.now();
+    final DateTime sunday = now.subtract(Duration(days: now.weekday % 7));
+    return List.generate(7, (index) => sunday.add(Duration(days: index)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,10 +37,8 @@ class _WeekCalendarState extends State<CalendarScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 상단 월과 요일 캘린더
             _buildCalendarHeader(),
             SizedBox(height: 12),
-            // 일정 리스트
             Expanded(child: _buildScheduleList()),
           ],
         ),
@@ -41,6 +47,8 @@ class _WeekCalendarState extends State<CalendarScreen> {
   }
 
   Widget _buildCalendarHeader() {
+    final List<DateTime> weekDay = getWeekDates();
+    final selectedDate = Provider.of<ScheduleProvider>(context);
     return Container(
       color: Color(0xff78b1e0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -75,56 +83,60 @@ class _WeekCalendarState extends State<CalendarScreen> {
           ]),
           SizedBox(height: 16),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: weekDays.map((day) {
-              bool isSelected = day.day == _selectedDay.day &&
-                  day.month == _selectedDay.month &&
-                  day.year == _selectedDay.year;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedDay = day;
-                  });
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AddScheduleScreen(date: _selectedDay),
-                    ),
-                  );
-                },
-                child: Column(
-                  children: [
-                    Text(
-                      _getWeekDayName(day.weekday),
-                      style: TextStyle(color: Color(0xffFcfcd4), fontSize: 16),
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? Color(0xffFcfcd4) : Colors.transparent,
-                        shape: BoxShape.circle,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(7, (index) {
+                final DateTime currentDay = weekDay[index];
+                final isSelected =
+                    currentDay.day == selectedDate.selectedDate.day &&
+                        currentDay.month == selectedDate.selectedDate.month &&
+                        currentDay.year == selectedDate.selectedDate.year;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedDate.setSelectedDate(currentDay);
+                    });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AddScheduleScreen(date: _selectedDay),
                       ),
-                      child: Center(
-                        child: Text(
-                          day.day.toString(),
-                          style: TextStyle(
-                            color: isSelected
-                                ? Color(0xff78b1e0)
-                                : Color(0xffFcfcd4),
-                            fontWeight: FontWeight.bold,
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Text(
+                        StringDays[index],
+                        style: TextStyle(
+                            color: Color(0xffFcfcd4),
+                            fontSize: 16),
+                      ),
+                      SizedBox(height: 8),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Color(0xffFcfcd4)
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            currentDay.day.toString(),
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Color(0xff78b1e0)
+                                  : Color(0xffFcfcd4),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
+                      )
+                    ],
+                  ),
+                );
+              })),
         ],
       ),
     );
@@ -146,81 +158,63 @@ class _WeekCalendarState extends State<CalendarScreen> {
       itemBuilder: (context, index) {
         final task = schedule[index];
         return Container(
-          margin: EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                contentPadding: EdgeInsets.all(12),
-
-                title: Text(
-                  task['title']!,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            margin: EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
                 ),
-                subtitle: Text(
-                  '${task['startTime']} - ${task['endTime']}',
-                  style: TextStyle(color: Colors.grey.shade600),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.all(12),
+                  title: Text(
+                    task['title']!,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    '${task['startTime']} - ${task['endTime']}',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios,
+                      color: Colors.grey.shade400),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CalendarScreen(),
+                        ));
+                  },
                 ),
-                trailing:
-                Icon(Icons.arrow_forward_ios, color: Colors.grey.shade400),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CalendarScreen(),
-                      ));
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('${task['members'].join(',')}',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),),
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    '${task['description']}',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),)
-                ],
-              )
-            ],
-          )
-        );
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        '${task['members'].join(',')}',
+                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        '${task['description']}',
+                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ));
       },
     );
-  }
-
-  String _getWeekDayName(int weekday) {
-    switch (weekday) {
-      case 1:
-        return 'Mon';
-      case 2:
-        return 'Tue';
-      case 3:
-        return 'Wed';
-      case 4:
-        return 'Thu';
-      case 5:
-        return 'Fri';
-      case 6:
-        return 'Sat';
-      case 7:
-        return 'Sun';
-      default:
-        return '';
-    }
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management/providers/schedule_provider.dart';
@@ -7,8 +8,9 @@ import 'package:task_management/screens/calendar_screen.dart';
 
 class AddScheduleScreen extends StatefulWidget {
   final DateTime? date;
+
   AddScheduleScreen({this.date});
-  
+
   @override
   _AddScheduleScreenState createState() => _AddScheduleScreenState();
 }
@@ -19,8 +21,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController endTimeController = TextEditingController();
 
-  final TextEditingController _controller = TextEditingController();
-
   List<Map<String, dynamic>> schedules = [];
   TextEditingController _eventController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
@@ -28,25 +28,62 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
 
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime initialDate = DateTime.now();
-    DateTime firstDate = DateTime(1900);
-    DateTime lastDate = DateTime(2100);
+  DateTime get _startOfWeek => _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
 
+  void _previousWeek() {
+    setState(() {
+      _selectedDate = _selectedDate.subtract(Duration(days: 7));
+    });
+  }
+
+  void _nextWeek(){
+    setState(() {
+      _selectedDate = _selectedDate.add(Duration(days: 7));
+    });
+  }
+
+  final List<String> weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+  List<DateTime> getWeekDates() {
+    return List.generate(7, (index) => _startOfWeek.add(Duration(days: index)));
+  }
+
+  String _getMonthName(int month) {
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    return monthNames[month - 1];
+  }
+
+  // 선택한 날짜
+  Future<void> _selectDate(BuildContext context) async {
     DateTime? selectDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (selectDate != null && selectDate != initialDate) {
+    if (selectDate != null && selectDate != _selectedDate) {
       setState(() {
-        _controller.text =
+        _selectedDate = selectDate;
+        _eventController.text =
             '${selectDate.year}-${selectDate.month}-${selectDate.day}';
       });
     }
   }
 
+  // 선택한 시간
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     TimeOfDay initialTime = isStartTime
         ? (_startTime ?? TimeOfDay.now())
@@ -178,15 +215,99 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<DateTime> weekDay = getWeekDates();
+    final selectedDate = Provider.of<ScheduleProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Schedule'),
-        backgroundColor: Colors.deepOrangeAccent,
+        title: null,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            GestureDetector(
+              onTap: () => _selectedDate,
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                              onPressed: () => _previousWeek(),
+                              icon: Icon(Icons.keyboard_arrow_left)),
+                          Text(
+                            '${_selectedDate.year}, ${_getMonthName(_selectedDate.month)}',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                              onPressed: () => _nextWeek(),
+                              icon: Icon(Icons.keyboard_arrow_right)),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(7, (index) {
+                        final DateTime currentDay = weekDay[index];
+                        final isSelected = currentDay.day == selectedDate.selectedDate.day &&
+                            currentDay.month == selectedDate.selectedDate.month &&
+                            currentDay.year == selectedDate.selectedDate.year;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedDate.setSelectedDate(currentDay);
+                              _selectedDate = currentDay;
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(13),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.orange
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  weekDays[index],
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.black38,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  currentDay.day.toString(),
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
             TextField(
               controller: titleController,
               decoration: customInputDecoration(
@@ -204,17 +325,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               maxLines: 3,
             ),
             SizedBox(height: 20),
-            TextField(
-              controller: _controller,
-              readOnly: true,
-              decoration: customInputDecoration(
-                labelText: 'Select Date',
-                hintText: 'Tap to select date',
-                suffixIcon: Icon(Icons.calendar_today),
-              ),
-              onTap: () => _selectDate(context),
-            ),
-            SizedBox(height: 20),
+            Text("Task"),
             Row(
               children: [
                 Expanded(
@@ -231,6 +342,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                     onTap: () => _selectTime(context, true),
                   ),
                 ),
+                SizedBox(width: 20),
+                Icon(Icons.arrow_forward_sharp),
                 SizedBox(
                   width: 20,
                 ),
@@ -306,17 +419,21 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
 
                 if (_startTime == null || _endTime == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please select both start and end times!')),
+                    SnackBar(
+                        content:
+                            Text('Please select both start and end times!')),
                   );
                   return;
                 }
 
-                final startTimeInMinutes = _startTime!.hour * 60 + _startTime!.minute;
+                final startTimeInMinutes =
+                    _startTime!.hour * 60 + _startTime!.minute;
                 final endTimeInMinutes = _endTime!.hour * 60 + _endTime!.minute;
 
                 if (startTimeInMinutes >= endTimeInMinutes) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('End time must be after start time!')),
+                    SnackBar(
+                        content: Text('End time must be after start time!')),
                   );
                   return;
                 }
@@ -346,7 +463,7 @@ InputDecoration customInputDecoration({
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: Colors.white,
+    fillColor: Color(0xffffe7d6),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(15),
       borderSide: BorderSide.none,
@@ -354,4 +471,3 @@ InputDecoration customInputDecoration({
     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
   );
 }
-
