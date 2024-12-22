@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management/providers/schedule_provider.dart';
+import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/calendar_screen.dart';
 
 class AddScheduleScreen extends StatefulWidget {
@@ -20,15 +21,42 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController endTimeController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
+  int? selectedUserId;
+
+  final ScheduleService scheduleService = ScheduleService();
+
+  // 카테고리
+  List<Map<String, dynamic>> categories = [];
+  int? selectedCategoryId;
+  String? selectedCategoryName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final fetchedCategories = await scheduleService.fetchCategories();
+      setState(() {
+        categories = fetchedCategories;
+      });
+    } catch (error) {
+      print('Error loading categories: $error');
+    }
+  }
 
   List<Map<String, dynamic>> schedules = [];
   TextEditingController _eventController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
 
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
 
-  DateTime get _startOfWeek => _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
+  // week 이동
+  DateTime get _startOfWeek =>
+      _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
 
   void _previousWeek() {
     setState(() {
@@ -36,7 +64,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     });
   }
 
-  void _nextWeek(){
+  void _nextWeek() {
     setState(() {
       _selectedDate = _selectedDate.add(Duration(days: 7));
     });
@@ -66,21 +94,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     return monthNames[month - 1];
   }
 
-  // 선택한 날짜
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime? selectDate = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (selectDate != null && selectDate != _selectedDate) {
-      setState(() {
-        _selectedDate = selectDate;
-        _eventController.text =
-            '${selectDate.year}-${selectDate.month}-${selectDate.day}';
-      });
-    }
+  String getFormattedDate(DateTime date) {
+    return '${date.year}-${date.month}-${date.day}';
   }
 
   // 선택한 시간
@@ -119,10 +134,10 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   TextEditingController textFieldController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    SearchMembers = Members;
-  }
+  // void initState() {
+  //   super.initState();
+  //   SearchMembers = Members;
+  // }
 
   void _searchMemebers(String query) {
     setState(() {
@@ -190,27 +205,38 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
         });
   }
 
-  void _addTask() {
+  Future<void> _addTask() async {
     if (titleController.text.isEmpty ||
         descriptionController.text.isEmpty ||
-        _selectedDate == null) {
+        _selectedDate == null ||
+        _startTime == null ||
+        _endTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please complete all fields')),
       );
       return;
     }
 
-    Provider.of<ScheduleProvider>(context, listen: false).addSchedule(
-      _selectedDate!,
-      titleController.text,
-      descriptionController.text,
-      _startTime!.format(context),
-      _endTime!.format(context),
-      SelectMembers,
+    final result = await scheduleService.addTask(
+        titleController.text,
+        descriptionController.text,
+        _startTime!.format(context),
+        _endTime!.format(context),
+        getFormattedDate(_selectedDate),
+        selectedCategoryId ?? 1,
+        selectedUserId ?? 1,
     );
-
-    Navigator.pop(context);
-    _eventController.clear();
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Task added successfully!')),
+      );
+      Navigator.pop(context);
+      _eventController.clear();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${result['message']}')),
+      );
+    }
   }
 
   @override
@@ -260,8 +286,10 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(7, (index) {
                         final DateTime currentDay = weekDay[index];
-                        final isSelected = currentDay.day == selectedDate.selectedDate.day &&
-                            currentDay.month == selectedDate.selectedDate.month &&
+                        final isSelected = currentDay.day ==
+                                selectedDate.selectedDate.day &&
+                            currentDay.month ==
+                                selectedDate.selectedDate.month &&
                             currentDay.year == selectedDate.selectedDate.year;
                         return GestureDetector(
                           onTap: () {
@@ -325,6 +353,23 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               maxLines: 3,
             ),
             SizedBox(height: 20),
+            DropdownButton<int>(
+              hint: Text('Select Category'),
+              value: selectedCategoryId,
+              onChanged: (int? newValue) {
+                setState(() {
+                  selectedCategoryId = newValue;
+                  selectedCategoryName = categories
+                      .firstWhere((category) => category['categorie_id'] == newValue)['categorie_name'];
+                });
+              },
+              items: categories.map((category) {
+                return DropdownMenuItem<int>(
+                  value: category['categorie_id'],
+                  child: Text(category['categorie_name']),
+                );
+              }).toList(),
+            ),
             Text("Task"),
             Row(
               children: [
