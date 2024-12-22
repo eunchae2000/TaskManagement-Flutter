@@ -215,13 +215,13 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     }
 
     final result = await scheduleService.addTask(
-        titleController.text,
-        descriptionController.text,
-        _startTime!.format(context),
-        _endTime!.format(context),
-        getFormattedDate(_selectedDate),
-        selectedCategoryId ?? 1,
-        selectedUserId ?? 1,
+      titleController.text,
+      descriptionController.text,
+      _startTime!.format(context),
+      _endTime!.format(context),
+      getFormattedDate(_selectedDate),
+      selectedCategoryId ?? 1,
+      selectedUserId ?? 1,
     );
     if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -350,22 +350,39 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               maxLines: 3,
             ),
             SizedBox(height: 20),
-            DropdownButton<int>(
-              hint: Text('Select Category'),
-              value: selectedCategoryId,
-              onChanged: (int? newValue) {
-                setState(() {
-                  selectedCategoryId = newValue;
-                  selectedCategoryName = categories
-                      .firstWhere((category) => category['categorie_id'] == newValue)['categorie_name'];
-                });
-              },
-              items: categories.map((category) {
-                return DropdownMenuItem<int>(
-                  value: category['categorie_id'],
-                  child: Text(category['categorie_name']),
-                );
-              }).toList(),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: Color(0xffffe7d6),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: DropdownButton<int>(
+                hint: Text(
+                  'Select Category',
+                  style: TextStyle(fontWeight: FontWeight.normal),
+                ),
+                value: selectedCategoryId,
+                onChanged: (int? newValue) {
+                  setState(() {
+                    selectedCategoryId = newValue;
+                    selectedCategoryName = categories.firstWhere((category) =>
+                        category['categorie_id'] == newValue)['categorie_name'];
+                  });
+                },
+                isExpanded: true,
+                underline: SizedBox.shrink(),
+                items: categories.map((category) {
+                  return DropdownMenuItem<int>(
+                      value: category['categorie_id'],
+                      child: Container(
+                        child: Text(
+                          category['categorie_name'],
+                          style: TextStyle(fontWeight: FontWeight.normal),
+                        ),
+                      ));
+                }).toList(),
+              ),
             ),
             Text("Task"),
             Row(
