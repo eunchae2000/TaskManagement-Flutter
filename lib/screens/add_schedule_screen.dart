@@ -460,50 +460,73 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               ).toList(),
             ),
             SizedBox(height: 100),
-            ElevatedButton(
-              onPressed: () {
-                _addTask();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CalendarScreen(schedules: schedules),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Cancel 기능
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text('Cancel', style: TextStyle(fontSize: 16)),
                   ),
-                );
-                if (_eventController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please enter an event!')),
-                  );
-                  return;
-                }
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _addTask();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CalendarScreen(schedules: schedules),
+                        ),
+                      );
+                      if (_eventController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please enter an event!')),
+                        );
+                        return;
+                      }
 
-                if (_startTime == null || _endTime == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content:
-                            Text('Please select both start and end times!')),
-                  );
-                  return;
-                }
+                      if (_startTime == null || _endTime == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Please select both start and end times!')),
+                        );
+                        return;
+                      }
 
-                final startTimeInMinutes =
-                    _startTime!.hour * 60 + _startTime!.minute;
-                final endTimeInMinutes = _endTime!.hour * 60 + _endTime!.minute;
+                      final startTimeInMinutes =
+                          _startTime!.hour * 60 + _startTime!.minute;
+                      final endTimeInMinutes =
+                          _endTime!.hour * 60 + _endTime!.minute;
 
-                if (startTimeInMinutes >= endTimeInMinutes) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('End time must be after start time!')),
-                  );
-                  return;
-                }
+                      if (startTimeInMinutes >= endTimeInMinutes) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content:
+                                  Text('End time must be after start time!')),
+                        );
+                        return;
+                      }
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Schedule added successfully!')),
-                );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Schedule added successfully!')),
+                      );
 
-                Navigator.pop(context);
-              },
-              child: Text('Add Schedule'),
+                      Navigator.pop(context);
+                    },
+                    child: Text('Save Task'),
+                  ),
+                )
+              ],
             ),
           ],
         ),
