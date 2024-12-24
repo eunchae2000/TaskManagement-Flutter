@@ -261,7 +261,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
+                          horizontal: 17.0, vertical: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -299,7 +299,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                             padding: EdgeInsets.all(13),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? Colors.orange
+                                  ? Color(0xffff4700)
                                   : Colors.transparent,
                               shape: BoxShape.circle,
                             ),
@@ -347,12 +347,12 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 labelText: 'Description',
                 hintText: 'Enter Task description',
               ),
-              maxLines: 3,
+              maxLines: 5,
             ),
             SizedBox(height: 20),
             Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
               decoration: BoxDecoration(
                 color: Color(0xffffe7d6),
                 borderRadius: BorderRadius.circular(15),
@@ -384,7 +384,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 }).toList(),
               ),
             ),
-            Text("Task"),
+            SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -459,23 +459,28 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 ),
               ).toList(),
             ),
-            SizedBox(height: 100),
+            SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Cancel 기능
+                      Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 17.0, horizontal: 16.0),
                       backgroundColor: Colors.white,
+                      foregroundColor: Color(0xffff4700),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
+                        side: BorderSide(color: Color(0xffff4700), width: 2.0),
                       ),
                     ),
-                    child: Text('Cancel', style: TextStyle(fontSize: 16)),
+                    child: Text('Cancel', style: TextStyle(fontSize: 17)),
                   ),
                 ),
+                SizedBox(width: 20),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
@@ -523,7 +528,16 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
 
                       Navigator.pop(context);
                     },
-                    child: Text('Save Task'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 17.0, horizontal: 16.0),
+                      backgroundColor: Color(0xffff4700),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text('Save Task', style: TextStyle(fontSize: 17)),
                   ),
                 )
               ],
@@ -550,6 +564,6 @@ InputDecoration customInputDecoration({
       borderRadius: BorderRadius.circular(15),
       borderSide: BorderSide.none,
     ),
-    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    contentPadding: EdgeInsets.symmetric(vertical: 17.0, horizontal: 16.0),
   );
 }
