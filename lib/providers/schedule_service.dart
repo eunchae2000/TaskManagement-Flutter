@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScheduleService {
   final String baseUrl = 'http://10.0.2.2:8000';
@@ -77,10 +78,16 @@ class ScheduleService {
     );
 
     if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
+      final data = json.decode(response.body);
+      final userId = data['user_id'];
+      final token = data['token'];
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', userId.toString());
+      await prefs.setString('token', token);
       return {
         'success': true,
-        'message': responseData['message'],
+        'message': data['message'] ?? 'Login successful',
       };
     } else {
       throw Exception('Failed to login');
@@ -120,7 +127,18 @@ class ScheduleService {
       String task_endTime,
       String task_dateTime,
       int categorie_id,
-      int user_id) async {
+      ) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? user_id = prefs.getString('user_id');
+
+    if (token == null || user_id == null) {
+      return {
+        'success': false,
+        'message': 'No token found. Please log in again.',
+      };
+    }
+
     final url = Uri.parse('$baseUrl/post');
 
     final Map<String, dynamic> requestData = {
@@ -131,6 +149,7 @@ class ScheduleService {
       'task_dateTime': task_dateTime,
       'categorie_id': categorie_id,
       'user_id': user_id,
+      'token': token,
     };
 
     try {
@@ -148,26 +167,63 @@ class ScheduleService {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestData),
       );
-
       if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
+        print('Task added successfully');
         return {
-          'success': responseData['success'] ?? false,
-          'message': responseData['message'] ?? 'Task added successfully',
+          'success': true,
+          'message': 'Task added successfully',
         };
       } else {
-        final responseData = jsonDecode(response.body);
+        print('Failed to add task: ${response.body}');
         return {
           'success': false,
-          'message':
-              responseData['message'] ?? 'Server error: ${response.statusCode}',
+          'message': 'Failed to add task: ${response.body}',
         };
       }
     } catch (error) {
+      print('Error during task addition: $error');
       return {
         'success': false,
         'message': 'Network error: $error',
       };
+    }
+  }
+
+
+  Future<List<Map<String, dynamic>>> fetchTask(int categoryId, String selectDay
+      )async{
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? user_id = prefs.getString('user_id');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/task',),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': user_id,
+        'categorie_id': int.tryParse(categoryId.toString()) ?? 1,
+        'task_dateTime': selectDay,
+        'token': token,
+      }),
+    );
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      print(responseData);
+
+      if (responseData['success'] == true) {
+        final data = responseData['data'];
+        print(data);
+        if (data is List) {
+          return data.map((item) => Map<String, dynamic>.from(item)).toList();
+        } else {
+          throw Exception('Invalid data format: Expected a list');
+        }
+      } else {
+        throw Exception('API error: ${responseData['message']}');
+      }
+    } else {
+      throw Exception('Server error: ${response.statusCode}');
     }
   }
 }

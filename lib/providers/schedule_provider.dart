@@ -1,7 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-
 import 'package:task_management/providers/schedule_service.dart';
 
 class ScheduleProvider with ChangeNotifier {

@@ -221,11 +221,10 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       _endTime!.format(context),
       getFormattedDate(_selectedDate),
       selectedCategoryId ?? 1,
-      selectedUserId ?? 1,
     );
     if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Task added successfully!')),
+        SnackBar(content: Text('Error: $_selectedDate.month')),
       );
       Navigator.pop(context);
       _eventController.clear();
@@ -489,15 +488,9 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              CalendarScreen(schedules: schedules),
+                              CalendarScreen(),
                         ),
                       );
-                      if (_eventController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Please enter an event!')),
-                        );
-                        return;
-                      }
 
                       if (_startTime == null || _endTime == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
