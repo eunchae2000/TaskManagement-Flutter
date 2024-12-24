@@ -21,18 +21,46 @@ class _WeekCalendarState extends State<CalendarScreen> {
         .subtract(Duration(days: DateTime.now().weekday - 1 - index));
   });
 
-  final List<String> StringDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  final List<String> StringDays = [
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat'
+  ];
+  final List<String> stringMonth = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
 
-  List<DateTime> getWeekDates() {
-    final DateTime now = DateTime.now();
-    final DateTime sunday = now.subtract(Duration(days: now.weekday % 7));
-    return List.generate(7, (index) => sunday.add(Duration(days: index)));
+  List<DateTime> getWeekDates(DateTime selectDate) {
+    final int currentWeekDay = selectDate.weekday;
+    final DateTime startOfWeek =
+        selectDate.subtract(Duration(days: currentWeekDay - 1));
+    final DateTime endOfWeek =
+        selectDate.add(Duration(days: 7 - currentWeekDay));
+
+    return List.generate(7, (index) {
+      return startOfWeek.add(Duration(days: index));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffe6f4f1),
+      backgroundColor: Color(0xffddf2ff),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,22 +75,46 @@ class _WeekCalendarState extends State<CalendarScreen> {
   }
 
   Widget _buildCalendarHeader() {
-    final List<DateTime> weekDay = getWeekDates();
+    final List<DateTime> weekDay = getWeekDates(_selectedDay);
     final selectedDate = Provider.of<ScheduleProvider>(context);
     return Container(
-      color: Color(0xff78b1e0),
+      color: Color(0xffff4700),
+      width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(
-              (_selectedDay.month).toString(),
+            DropdownButton<int>(
+              value: _selectedDay.month,
+              dropdownColor: Color(0xFFff4700),
+              underline: SizedBox.shrink(),
               style: TextStyle(
-                color: Color(0xffFcfcd4),
-                fontSize: 32,
+                color: Colors.white,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
+              icon: Icon(Icons.keyboard_arrow_down_rounded,
+                  color: Color(0xffffe7d6), size: 32),
+              onChanged: (int? newValue) {
+                setState(() {
+                  _selectedDay = DateTime(
+                    _selectedDay.year,
+                    newValue!,
+                    1,
+                  );
+                });
+              },
+              items: List.generate(12, (index) {
+                int monthNumber = index + 1;
+                return DropdownMenuItem<int>(
+                  value: monthNumber,
+                  child: Text(
+                    stringMonth[index],
+                    style: TextStyle(color: Color(0xffffe7d6)),
+                  ),
+                );
+              }),
             ),
             ElevatedButton(
               onPressed: () {
@@ -73,11 +125,15 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   ),
                 );
               },
-              child: Icon(Icons.add),
+              child: Icon(
+                Icons.add,
+                color: Color(0xffff4700),
+                size: 30,
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xffe6f4f1),
+                backgroundColor: Color(0xffffe7d6),
                 shape: CircleBorder(),
-                padding: EdgeInsets.all(17.0),
+                padding: EdgeInsets.all(10.0),
               ),
             ),
           ]),
@@ -108,8 +164,9 @@ class _WeekCalendarState extends State<CalendarScreen> {
                       Text(
                         StringDays[index],
                         style: TextStyle(
-                            color: Color(0xffFcfcd4),
-                            fontSize: 16),
+                            color: Color(0xffffe7d6),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 8),
                       Container(
@@ -117,7 +174,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                         height: 40,
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Color(0xffFcfcd4)
+                              ? Color(0xffffe7d6)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -126,8 +183,9 @@ class _WeekCalendarState extends State<CalendarScreen> {
                             currentDay.day.toString(),
                             style: TextStyle(
                               color: isSelected
-                                  ? Color(0xff78b1e0)
-                                  : Color(0xffFcfcd4),
+                                  ? Color(0xffff4700)
+                                  : Color(0xffffe7d6),
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
