@@ -67,7 +67,6 @@ class _WeekCalendarState extends State<CalendarScreen> {
   }
 
   Future<void> _fetchTasks() async {
-    print(_selectedDay);
     try {
       final fetchedTasks = await _scheduleService.fetchTask(
         getFormattedDate(_selectedDay),
