@@ -56,8 +56,6 @@ class _WeekCalendarState extends State<CalendarScreen> {
     final int currentWeekDay = selectDate.weekday;
     final DateTime startOfWeek =
         selectDate.subtract(Duration(days: currentWeekDay - 1));
-    final DateTime endOfWeek =
-        selectDate.add(Duration(days: 7 - currentWeekDay));
 
     return List.generate(7, (index) {
       return startOfWeek.add(Duration(days: index));
@@ -74,9 +72,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
       final fetchedTasks = await _scheduleService.fetchTask(
         getFormattedDate(_selectedDay),
       );
-      if (fetchedTasks is! List) {
-        throw Exception('Expected a list, but received: ${fetchedTasks.runtimeType}');
-      }
+
       setState(() {
         tasks = fetchedTasks;
       });
