@@ -190,7 +190,7 @@ class ScheduleService {
   }
 
 
-  Future<List<Map<String, dynamic>>> fetchTask(int categoryId, String selectDay
+  Future<List<Map<String, dynamic>>> fetchTask( String selectDay
       )async{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -202,26 +202,22 @@ class ScheduleService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'user_id': user_id,
-        'categorie_id': int.tryParse(categoryId.toString()) ?? 1,
         'task_dateTime': selectDay,
         'token': token,
       }),
     );
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
-      print(responseData);
+      print("responseData $responseData");
 
-      if (responseData['success'] == true) {
-        final data = responseData['data'];
-        print(data);
-        if (data is List) {
-          return data.map((item) => Map<String, dynamic>.from(item)).toList();
-        } else {
-          throw Exception('Invalid data format: Expected a list');
-        }
+      if (responseData is List) {
+        final data = responseData;
+        print("data $data");
+        return data.map((item) => Map<String, dynamic>.from(item)).toList();
       } else {
-        throw Exception('API error: ${responseData['message']}');
+        throw Exception('Invalid data format: Expected a list');
       }
+
     } else {
       throw Exception('Server error: ${response.statusCode}');
     }

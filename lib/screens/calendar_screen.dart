@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
@@ -13,32 +12,18 @@ class CalendarScreen extends StatefulWidget {
 class _WeekCalendarState extends State<CalendarScreen> {
   DateTime _selectedDay = DateTime.now();
 
-  final Color backgroundColor = Color(0xffFFD6E4);
   final List<DateTime> weekDays = List.generate(7, (index) {
     return DateTime.now()
         .subtract(Duration(days: DateTime.now().weekday - 1 - index));
   });
 
-  List<Map<String, dynamic>> categories = [];
   int? selectedCategoryId;
   List<Map<String, dynamic>> tasks = [];
 
   @override
   void initState() {
     super.initState();
-    _loadCategories();
     _fetchTasks();
-  }
-
-  Future<void> _loadCategories() async {
-    try {
-      final fetchedCategories = await _scheduleService.fetchCategories();
-      setState(() {
-        categories = fetchedCategories;
-      });
-    } catch (error) {
-      print('Error loading categories: $error');
-    }
   }
 
   ScheduleService _scheduleService = ScheduleService();
@@ -84,11 +69,14 @@ class _WeekCalendarState extends State<CalendarScreen> {
   }
 
   Future<void> _fetchTasks() async {
+    print(_selectedDay);
     try {
       final fetchedTasks = await _scheduleService.fetchTask(
-        selectedCategoryId ?? 1,
         getFormattedDate(_selectedDay),
       );
+      if (fetchedTasks is! List) {
+        throw Exception('Expected a list, but received: ${fetchedTasks.runtimeType}');
+      }
       setState(() {
         tasks = fetchedTasks;
       });
@@ -202,16 +190,21 @@ class _WeekCalendarState extends State<CalendarScreen> {
                         currentDay.year == selectedDate.selectedDate.year;
                 return GestureDetector(
                   onTap: () {
-                    setState(() {
-                      selectedDate.setSelectedDate(currentDay);
-                    });
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            AddScheduleScreen(date: _selectedDay),
-                      ),
-                    );
+                    if(_selectedDay != currentDay){
+                      setState(() {
+                        _selectedDay = currentDay;
+                        selectedDate.setSelectedDate(currentDay);
+                      });
+                      _fetchTasks();
+                    }else{
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AddScheduleScreen(date: _selectedDay),
+                        ),
+                      );
+                    }
                   },
                   child: Column(
                     children: [
@@ -268,7 +261,6 @@ class _WeekCalendarState extends State<CalendarScreen> {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        print('task $task');
         return Container(
             margin: EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
@@ -305,25 +297,26 @@ class _WeekCalendarState extends State<CalendarScreen> {
                         ));
                   },
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        '${task['members'].join(',')}',
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        '${task['task_description']}',
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
-                      ),
-                    )
-                  ],
-                )
+                // 멤버 목록
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.start,
+                //   children: [
+                //     Padding(
+                //       padding: EdgeInsets.symmetric(horizontal: 16),
+                //       child: Text(
+                //         '${task['members'].join(',')}',
+                //         style: TextStyle(fontSize: 14, color: Colors.black54),
+                //       ),
+                //     ),
+                //     Padding(
+                //       padding: EdgeInsets.symmetric(horizontal: 16),
+                //       child: Text(
+                //         '${task['task_description']}',
+                //         style: TextStyle(fontSize: 14, color: Colors.black54),
+                //       ),
+                //     )
+                //   ],
+                // )
               ],
             ));
       },
