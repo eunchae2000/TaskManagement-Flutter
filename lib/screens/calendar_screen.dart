@@ -5,6 +5,7 @@ import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:task_management/screens/detail_Screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -411,7 +412,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                AddScheduleScreen(date: _selectedDay),
+                                DetailScreen(task: task),
                           ),
                         );
                       },
@@ -424,7 +425,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CalendarScreen(),
+                        builder: (context) => DetailScreen(task: task),
                       ));
                 },
               ));
