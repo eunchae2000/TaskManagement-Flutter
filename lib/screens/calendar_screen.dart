@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
@@ -14,7 +15,9 @@ class _WeekCalendarState extends State<CalendarScreen> {
 
   final List<DateTime> weekDays = List.generate(7, (index) {
     return DateTime.now()
-        .subtract(Duration(days: DateTime.now().weekday - 1 - index));
+        .subtract(Duration(days: DateTime
+        .now()
+        .weekday - 1 - index));
   });
 
   int? selectedCategoryId;
@@ -26,9 +29,9 @@ class _WeekCalendarState extends State<CalendarScreen> {
     _fetchTasks();
   }
 
-  ScheduleService _scheduleService = ScheduleService();
+  final ScheduleService _scheduleService = ScheduleService();
 
-  final List<String> StringDays = [
+  final List<String> stringDays = [
     'Sun',
     'Mon',
     'Tue',
@@ -52,10 +55,53 @@ class _WeekCalendarState extends State<CalendarScreen> {
     'December'
   ];
 
+  DateTime parseTime(String timeString) {
+    final format = DateFormat('hh:mm a');
+    return format.parse(timeString);
+  }
+
+  String formatTime(String timeString) {
+    final DateTime time = parseTime(timeString);
+    return DateFormat('hh:mm a').format(time);
+  }
+
+  String calculateDuration(String startTime, String endTime) {
+    final start = DateFormat('hh:mm a').parse(startTime);
+    final end = DateFormat('hh:mm a').parse(endTime);
+    final duration = end.difference(start);
+
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+
+    if (hours > 0 && minutes > 0) {
+      return '${hours}h ${minutes}m';
+    } else if (hours > 0) {
+      return '${hours}h';
+    } else {
+      return '';
+    }
+  }
+
+  String calculateDDay(String taskDate) {
+    final today = DateTime.now();
+    final scheduleDate = DateFormat('yyyy-MM-dd').parse(taskDate);
+    final difference = scheduleDate
+        .difference(today)
+        .inDays;
+
+    if (difference == 0) {
+      return "Today";
+    } else if (difference > 0) {
+      return "D-$difference";
+    } else {
+      return "D+${-difference}";
+    }
+  }
+
   List<DateTime> getWeekDates(DateTime selectDate) {
     final int currentWeekDay = selectDate.weekday;
     final DateTime startOfWeek =
-        selectDate.subtract(Duration(days: currentWeekDay - 1));
+    selectDate.subtract(Duration(days: currentWeekDay - 1));
 
     return List.generate(7, (index) {
       return startOfWeek.add(Duration(days: index));
@@ -76,11 +122,13 @@ class _WeekCalendarState extends State<CalendarScreen> {
         tasks = fetchedTasks;
       });
 
+      if(!mounted) return;
+
       if (tasks.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content:
-                  Text('No tasks found for the selected category and date')),
+              Text('No tasks found for the selected category and date')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,13 +147,15 @@ class _WeekCalendarState extends State<CalendarScreen> {
     return Scaffold(
       backgroundColor: Color(0xffddf2ff),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildCalendarHeader(),
-            SizedBox(height: 12),
-            Expanded(child: _buildScheduleList()),
-          ],
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildCalendarHeader(),
+              SizedBox(height: 12),
+              _buildScheduleList(),
+            ],
+          ),
         ),
       ),
     );
@@ -162,15 +212,15 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   ),
                 );
               },
-              child: Icon(
-                Icons.add,
-                color: Color(0xffff4700),
-                size: 30,
-              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xffffe7d6),
                 shape: CircleBorder(),
                 padding: EdgeInsets.all(10.0),
+              ),
+              child: Icon(
+                Icons.add,
+                color: Color(0xffff4700),
+                size: 30,
               ),
             ),
           ]),
@@ -185,13 +235,13 @@ class _WeekCalendarState extends State<CalendarScreen> {
                         currentDay.year == selectedDate.selectedDate.year;
                 return GestureDetector(
                   onTap: () {
-                    if(_selectedDay != currentDay){
+                    if (_selectedDay != currentDay) {
                       setState(() {
                         _selectedDay = currentDay;
                         selectedDate.setSelectedDate(currentDay);
                       });
                       _fetchTasks();
-                    }else{
+                    } else {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -204,7 +254,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   child: Column(
                     children: [
                       Text(
-                        StringDays[index],
+                        stringDays[index],
                         style: TextStyle(
                             color: Color(0xffffe7d6),
                             fontSize: 15,
@@ -251,70 +301,132 @@ class _WeekCalendarState extends State<CalendarScreen> {
         ),
       );
     }
-    return ListView.builder(
-      padding: EdgeInsets.all(16),
-      itemCount: tasks.length,
-      itemBuilder: (context, index) {
-        final task = tasks[index];
-        return Container(
-            margin: EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  contentPadding: EdgeInsets.all(12),
-                  title: Text(
-                    task['task_title']!,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Expanded(
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        itemCount: tasks.length,
+        itemBuilder: (context, index) {
+          final task = tasks[index];
+          return Container(
+              margin: EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
                   ),
-                  subtitle: Text(
-                    '${task['task_startTime']} - ${task['task_endTime']}',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios,
-                      color: Colors.grey.shade400),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CalendarScreen(),
-                        ));
-                  },
+                ],
+              ),
+              child:
+              ListTile(
+                contentPadding: EdgeInsets.all(16),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${task['task_startTime']} - ${task['task_endTime']}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      task['task_title']!,
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-                // 멤버 목록
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.start,
-                //   children: [
-                //     Padding(
-                //       padding: EdgeInsets.symmetric(horizontal: 16),
-                //       child: Text(
-                //         '${task['members'].join(',')}',
-                //         style: TextStyle(fontSize: 14, color: Colors.black54),
-                //       ),
-                //     ),
-                //     Padding(
-                //       padding: EdgeInsets.symmetric(horizontal: 16),
-                //       child: Text(
-                //         '${task['task_description']}',
-                //         style: TextStyle(fontSize: 14, color: Colors.black54),
-                //       ),
-                //     )
-                //   ],
-                // )
-              ],
-            ));
-      },
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${task['task_description']}',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xffe9e9e9),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 3),
+                            child: Text(
+                              calculateDDay(task['task_dateTime']),
+                              style: TextStyle(color: Colors.black54),
+                            )),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: calculateDuration(task['task_startTime'],
+                                task['task_endTime']) ==
+                                ''
+                                ? Colors.white
+                                : Color(0xffe9e9e9),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          child: Text(
+                            calculateDuration(
+                                task['task_startTime'], task['task_endTime']),
+                            style: TextStyle(
+                              color: calculateDuration(task['task_startTime'],
+                                  task['task_endTime']) == ''
+                                  ? Colors.black
+                                  : Colors.black54,
+                            ),
+                          ),
+
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                trailing: Icon(Icons.arrow_forward_ios,
+                    color: Colors.grey.shade400),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CalendarScreen(),
+                      ));
+                },
+              ));
+
+          // 멤버 목록
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.start,
+          //   children: [
+          //     Padding(
+          //       padding: EdgeInsets.symmetric(horizontal: 16),
+          //       child: Text(
+          //         '${task['members'].join(',')}',
+          //         style: TextStyle(fontSize: 14, color: Colors.black54),
+          //       ),
+          //     ),
+          //     Padding(
+          //       padding: EdgeInsets.symmetric(horizontal: 16),
+          //       child: Text(
+          //         '${task['task_description']}',
+          //         style: TextStyle(fontSize: 14, color: Colors.black54),
+          //       ),
+          //     )
+          //   ],
+          // )
+        },
+      ),
+
     );
   }
 }
