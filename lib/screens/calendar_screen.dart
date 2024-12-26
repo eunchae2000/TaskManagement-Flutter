@@ -4,6 +4,7 @@ import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/add_schedule_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -15,9 +16,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
 
   final List<DateTime> weekDays = List.generate(7, (index) {
     return DateTime.now()
-        .subtract(Duration(days: DateTime
-        .now()
-        .weekday - 1 - index));
+        .subtract(Duration(days: DateTime.now().weekday - 1 - index));
   });
 
   int? selectedCategoryId;
@@ -85,9 +84,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
   String calculateDDay(String taskDate) {
     final today = DateTime.now();
     final scheduleDate = DateFormat('yyyy-MM-dd').parse(taskDate);
-    final difference = scheduleDate
-        .difference(today)
-        .inDays;
+    final difference = scheduleDate.difference(today).inDays;
 
     if (difference == 0) {
       return "Today";
@@ -101,7 +98,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
   List<DateTime> getWeekDates(DateTime selectDate) {
     final int currentWeekDay = selectDate.weekday;
     final DateTime startOfWeek =
-    selectDate.subtract(Duration(days: currentWeekDay - 1));
+        selectDate.subtract(Duration(days: currentWeekDay - 1));
 
     return List.generate(7, (index) {
       return startOfWeek.add(Duration(days: index));
@@ -122,13 +119,13 @@ class _WeekCalendarState extends State<CalendarScreen> {
         tasks = fetchedTasks;
       });
 
-      if(!mounted) return;
+      if (!mounted) return;
 
       if (tasks.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content:
-              Text('No tasks found for the selected category and date')),
+                  Text('No tasks found for the selected category and date')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -145,14 +142,16 @@ class _WeekCalendarState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffddf2ff),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildCalendarHeader(),
-              SizedBox(height: 12),
+              SizedBox(
+                height: 7,
+              ),
               _buildScheduleList(),
             ],
           ),
@@ -165,7 +164,15 @@ class _WeekCalendarState extends State<CalendarScreen> {
     final List<DateTime> weekDay = getWeekDates(_selectedDay);
     final selectedDate = Provider.of<ScheduleProvider>(context);
     return Container(
-      color: Color(0xffff4700),
+      decoration: BoxDecoration(
+        color: Color(0xffff4700),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(0),
+          topRight: Radius.circular(0),
+          bottomLeft: Radius.circular(25),
+          bottomRight: Radius.circular(25),
+        ),
+      ),
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
       child: Column(
@@ -203,7 +210,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                 );
               }),
             ),
-            ElevatedButton(
+            IconButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -212,17 +219,12 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xffffe7d6),
-                shape: CircleBorder(),
-                padding: EdgeInsets.all(10.0),
-              ),
-              child: Icon(
+              icon: Icon(
                 Icons.add,
-                color: Color(0xffff4700),
+                color: Color(0xffffe7d6),
                 size: 30,
               ),
-            ),
+            )
           ]),
           SizedBox(height: 16),
           Row(
@@ -252,6 +254,8 @@ class _WeekCalendarState extends State<CalendarScreen> {
                     }
                   },
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         stringDays[index],
@@ -260,7 +264,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                             fontSize: 15,
                             fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 4),
                       Container(
                         width: 40,
                         height: 40,
@@ -303,15 +307,14 @@ class _WeekCalendarState extends State<CalendarScreen> {
     }
     return Expanded(
       child: ListView.builder(
-        padding: EdgeInsets.symmetric(vertical: 10),
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           final task = tasks[index];
           return Container(
-              margin: EdgeInsets.only(bottom: 20),
+              margin: EdgeInsets.only(bottom: 7),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black12,
@@ -320,13 +323,14 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   ),
                 ],
               ),
-              child:
-              ListTile(
-                contentPadding: EdgeInsets.all(16),
+              child: ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${task['task_startTime']} - ${task['task_endTime']}',
+                    Text(
+                      '${task['task_startTime']} - ${task['task_endTime']}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -335,30 +339,33 @@ class _WeekCalendarState extends State<CalendarScreen> {
                     SizedBox(height: 5),
                     Text(
                       task['task_title']!,
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${task['task_description']}',
-                      style: TextStyle(color: Colors.grey.shade600),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: Text(
+                        '${task['task_description']}',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
                     ),
                     SizedBox(
-                      height: 5,
+                      height: 10,
                     ),
                     Row(
                       children: [
                         Container(
                             decoration: BoxDecoration(
                               color: Color(0xffe9e9e9),
-                              borderRadius: BorderRadius.circular(15.0),
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
                             padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 3),
+                                horizontal: 16, vertical: 8),
                             child: Text(
                               calculateDDay(task['task_dateTime']),
                               style: TextStyle(color: Colors.black54),
@@ -369,32 +376,50 @@ class _WeekCalendarState extends State<CalendarScreen> {
                         Container(
                           decoration: BoxDecoration(
                             color: calculateDuration(task['task_startTime'],
-                                task['task_endTime']) ==
-                                ''
+                                        task['task_endTime']) ==
+                                    ''
                                 ? Colors.white
                                 : Color(0xffe9e9e9),
-                            borderRadius: BorderRadius.circular(15.0),
+                            borderRadius: BorderRadius.circular(20.0),
                           ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           child: Text(
                             calculateDuration(
                                 task['task_startTime'], task['task_endTime']),
                             style: TextStyle(
                               color: calculateDuration(task['task_startTime'],
-                                  task['task_endTime']) == ''
+                                          task['task_endTime']) ==
+                                      ''
                                   ? Colors.black
                                   : Colors.black54,
                             ),
                           ),
-
                         ),
                       ],
                     ),
                   ],
                 ),
-                trailing: Icon(Icons.arrow_forward_ios,
-                    color: Colors.grey.shade400),
+                trailing: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AddScheduleScreen(date: _selectedDay),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        MaterialCommunityIcons.arrow_top_right,
+                        color: Colors.white,
+                      )),
+                ),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -426,7 +451,6 @@ class _WeekCalendarState extends State<CalendarScreen> {
           // )
         },
       ),
-
     );
   }
 }
