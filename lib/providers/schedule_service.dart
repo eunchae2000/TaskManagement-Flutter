@@ -105,14 +105,46 @@ class ScheduleService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> friendsList() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/friends/$userId'));
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          var friendsData = responseData['data'][0];
+
+          List<Map<String, dynamic>> friendsList = [];
+          friendsData.forEach((key, value) {
+            if (key != 'user_profile') {
+              friendsList.add(Map<String, dynamic>.from(value));
+            }
+          });
+
+          return friendsList;
+        } else {
+          throw Exception('API error: ${responseData['message']}');
+        }
+      } else {
+        throw Exception('친구 목록을 불러오는 데 실패했습니다.');
+      }
+    } catch (e) {
+      throw Exception('에러 발생: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> addTask(
-      String taskTitle,
-      String taskDescription,
-      String taskStartTime,
-      String taskEndTime,
-      String taskDateTime,
-      int categorieId,
-      ) async {
+    String taskTitle,
+    String taskDescription,
+    String taskStartTime,
+    String taskEndTime,
+    String taskDateTime,
+    int categorieId,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? userId = prefs.getString('user_id');
@@ -138,14 +170,6 @@ class ScheduleService {
     };
 
     try {
-      List<Map<String, dynamic>> categories = await fetchCategories();
-
-      if (categories.isEmpty) {
-        return {
-          'success': false,
-          'message': 'No categories found.',
-        };
-      }
 
       final response = await http.post(
         url,
@@ -171,16 +195,15 @@ class ScheduleService {
     }
   }
 
-
-  Future<List<Map<String, dynamic>>> fetchTask( String selectDay
-      )async{
-
+  Future<List<Map<String, dynamic>>> fetchTask(String selectDay) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? userId = prefs.getString('user_id');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/task',),
+      Uri.parse(
+        '$baseUrl/task',
+      ),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'user_id': userId,
@@ -191,13 +214,17 @@ class ScheduleService {
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
 
-      if (responseData is List) {
-        final data = responseData;
-        return data.map((item) => Map<String, dynamic>.from(item)).toList();
+      if (responseData is Map<String, dynamic> && responseData.containsKey('data')) {
+        final data = responseData['data'];
+        print(data);
+        if (data is List) {
+          return data.map((item) => Map<String, dynamic>.from(item)).toList();
+        } else {
+          throw Exception('Invalid data format: Expected a list inside the "data" key');
+        }
       } else {
-        throw Exception('Invalid data format: Expected a list');
+        throw Exception('Invalid response format: "data" key not found');
       }
-
     } else {
       throw Exception('Server error: ${response.statusCode}');
     }
