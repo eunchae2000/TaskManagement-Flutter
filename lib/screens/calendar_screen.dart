@@ -465,7 +465,8 @@ Widget _memberAvatars(List<String> members) {
 
   int maxDisplay = 2;
   List<String> displayMembers = members.take(maxDisplay).toList();
-  int remainingCount = members.length > maxDisplay ? members.length - maxDisplay : 0;
+  int remainingCount =
+      members.length > maxDisplay ? members.length - maxDisplay : 0;
 
   double containerWidth = 40.0 * displayMembers.length.toDouble();
   if (remainingCount > 0) {
@@ -479,33 +480,39 @@ Widget _memberAvatars(List<String> members) {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          ...displayMembers.asMap().map((index, member) {
-            String firstLetter = member.isNotEmpty ? member[0].toUpperCase() : '';
-            return MapEntry(
-              index,
-              Positioned(
-                left: index * 25.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xffe9e9e9),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2.0,
+          ...displayMembers
+              .asMap()
+              .map((index, member) {
+                String firstLetter =
+                    member.isNotEmpty ? member[0].toUpperCase() : '';
+                return MapEntry(
+                  index,
+                  Positioned(
+                    left: index * 25.0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xffe9e9e9),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2.0,
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        radius: 18.0,
+                        backgroundColor: Colors.transparent,
+                        child: Text(
+                          firstLetter,
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
                   ),
-                  child: CircleAvatar(
-                    radius: 18.0,
-                    backgroundColor: Colors.transparent,
-                    child: Text(
-                      firstLetter,
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }).values.toList(),
+                );
+              })
+              .values
+              .toList(),
 
           // 나머지 인원 표시
           if (remainingCount > 0)
@@ -525,7 +532,8 @@ Widget _memberAvatars(List<String> members) {
                   backgroundColor: Colors.transparent,
                   child: Text(
                     '+$remainingCount',
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
