@@ -55,6 +55,7 @@ class DetailScreen extends StatelessWidget {
                 ),
               ],
             ),
+            SizedBox(height: 20,),
             Center(
               child: Container(
                   margin: EdgeInsets.only(bottom: 15),
@@ -62,10 +63,10 @@ class DetailScreen extends StatelessWidget {
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                   child: Text(
                     '${task['task_startTime']} - ${task['task_endTime']}',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   )),
             ),
             Center(
@@ -96,52 +97,46 @@ class DetailScreen extends StatelessWidget {
 
 Widget _memberAvatars(List<String> members) {
   if (members.isEmpty) {
-    return Text('');
+    return SizedBox();
   }
 
   int maxDisplay = 3;
   List<String> displayMembers = members.take(maxDisplay).toList();
   int remainingCount = members.length > maxDisplay ? members.length - maxDisplay : 0;
 
-  double containerWidth = 33.0 * displayMembers.length.toDouble();
-  if (remainingCount > 0) {
-    containerWidth += 30.0;
-  }
-
   return Center(
-    child: Container(
+    child: SizedBox(
       height: 40.0,
-      width: containerWidth,
+      width: 40.0 + (30.0 * (displayMembers.length - 1)) + (remainingCount > 0 ? 30.0 : 0.0),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          ...displayMembers.asMap().map((index, member) {
+          ...displayMembers.asMap().entries.map((entry) {
+            int index = entry.key;
+            String member = entry.value;
             String firstLetter = member.isNotEmpty ? member[0].toUpperCase() : '';
-            return MapEntry(
-              index,
-              Positioned(
-                left: index * 30.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xffe9e9e9),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2.0,
-                    ),
+            return Positioned(
+              left: index * 30.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xffe9e9e9),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2.0,
                   ),
-                  child: CircleAvatar(
-                    radius: 18.0,
-                    backgroundColor: Colors.transparent,
-                    child: Text(
-                      firstLetter,
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                    ),
+                ),
+                child: CircleAvatar(
+                  radius: 18.0,
+                  backgroundColor: Colors.transparent,
+                  child: Text(
+                    firstLetter,
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
             );
-          }).values.toList(),
+          }).toList(),
 
           if (remainingCount > 0)
             Positioned(
