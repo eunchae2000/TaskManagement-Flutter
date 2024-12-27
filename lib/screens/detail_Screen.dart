@@ -7,7 +7,10 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> members =
+        task['members'] != null ? List<String>.from(task['members']) : [];
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(10.0),
         child: AppBar(
@@ -54,13 +57,14 @@ class DetailScreen extends StatelessWidget {
             ),
             Center(
               child: Container(
-                margin: EdgeInsets.only(bottom: 15),
+                  margin: EdgeInsets.only(bottom: 15),
                   decoration: BoxDecoration(
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 13),
-                  child: Text('${task['task_startTime']} - ${task['task_endTime']}',
+                  child: Text(
+                    '${task['task_startTime']} - ${task['task_endTime']}',
                     style: TextStyle(color: Colors.white),
                   )),
             ),
@@ -80,33 +84,89 @@ class DetailScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            if (task['members'] != null && task['members'].isNotEmpty) ...[
-              Text(
-                'Participants:',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 5),
-              Text(
-                task['members'].join(', '),
-                style: TextStyle(fontSize: 16.0, color: Colors.grey),
-              ),
-              SizedBox(height: 20),
-            ],
-            if (task['task_location'] != null) ...[
-              Text(
-                'Location:',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 5),
-              Text(
-                task['task_location'],
-                style: TextStyle(fontSize: 16.0, color: Colors.grey),
-              ),
-              SizedBox(height: 20),
-            ],
+            Center(
+              child: _memberAvatars(members),
+            )
           ],
         ),
       ),
     );
   }
+}
+
+Widget _memberAvatars(List<String> members) {
+  if (members.isEmpty) {
+    return Text('');
+  }
+
+  int maxDisplay = 3;
+  List<String> displayMembers = members.take(maxDisplay).toList();
+  int remainingCount = members.length > maxDisplay ? members.length - maxDisplay : 0;
+
+  double containerWidth = 33.0 * displayMembers.length.toDouble();
+  if (remainingCount > 0) {
+    containerWidth += 30.0;
+  }
+
+  return Center(
+    child: Container(
+      height: 40.0,
+      width: containerWidth,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          ...displayMembers.asMap().map((index, member) {
+            String firstLetter = member.isNotEmpty ? member[0].toUpperCase() : '';
+            return MapEntry(
+              index,
+              Positioned(
+                left: index * 30.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xffe9e9e9),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2.0,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 18.0,
+                    backgroundColor: Colors.transparent,
+                    child: Text(
+                      firstLetter,
+                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).values.toList(),
+
+          if (remainingCount > 0)
+            Positioned(
+              left: displayMembers.length * 30.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xffff4700),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2.0,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 18.0,
+                  backgroundColor: Colors.transparent,
+                  child: Text(
+                    '+$remainingCount',
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
 }
