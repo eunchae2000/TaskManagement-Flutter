@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 30),
               Align(
-                alignment: Alignment.centerRight, // 텍스트를 오른쪽 정렬
+                alignment: Alignment.centerRight,
                 child: RichText(
                   text: TextSpan(
                     text: 'Recovery Password',
@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.black54,
                     ),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = navigateToSignUp, // 클릭 시 navigateToSignUp 함수 실행
+                      ..onTap = navigateToSignUp,
                   ),
                 ),
               ),
