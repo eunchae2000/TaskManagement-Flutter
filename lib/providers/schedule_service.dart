@@ -106,7 +106,6 @@ class ScheduleService {
   }
 
   Future<List<Map<String, dynamic>>> friendsList() async {
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
 
@@ -170,7 +169,6 @@ class ScheduleService {
     };
 
     try {
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -195,6 +193,23 @@ class ScheduleService {
     }
   }
 
+  Future<List<String>> getParticipant(int taskId) async {
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/task/$taskId/participants'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map((item) => item['user_name'].toString()).toList();
+    } else {
+      throw Exception('Failed to load participants');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchTask(String selectDay) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -214,13 +229,15 @@ class ScheduleService {
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
 
-      if (responseData is Map<String, dynamic> && responseData.containsKey('data')) {
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('data')) {
         final data = responseData['data'];
         print(data);
         if (data is List) {
           return data.map((item) => Map<String, dynamic>.from(item)).toList();
         } else {
-          throw Exception('Invalid data format: Expected a list inside the "data" key');
+          throw Exception(
+              'Invalid data format: Expected a list inside the "data" key');
         }
       } else {
         throw Exception('Invalid response format: "data" key not found');

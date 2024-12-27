@@ -120,6 +120,13 @@ class _WeekCalendarState extends State<CalendarScreen> {
         tasks = fetchedTasks;
       });
 
+      for (var task in tasks) {
+        final participants =
+            await _scheduleService.getParticipant(task['task_id']);
+        task['members'] = participants;
+        print(task['members']);
+      }
+
       if (!mounted) return;
 
       if (tasks.isEmpty) {
@@ -311,6 +318,8 @@ class _WeekCalendarState extends State<CalendarScreen> {
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           final task = tasks[index];
+          final List<String> members =
+              task['members'] != null ? List<String>.from(task['members']) : [];
           return Container(
               margin: EdgeInsets.only(bottom: 7),
               decoration: BoxDecoration(
@@ -330,12 +339,18 @@ class _WeekCalendarState extends State<CalendarScreen> {
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${task['task_startTime']} - ${task['task_endTime']}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${task['task_startTime']} - ${task['task_endTime']}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        _memberAvatars(members),
+                      ],
                     ),
                     SizedBox(height: 5),
                     Text(
@@ -359,67 +374,75 @@ class _WeekCalendarState extends State<CalendarScreen> {
                       height: 10,
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xffe9e9e9),
-                              borderRadius: BorderRadius.circular(20.0),
+                        Row(
+                          children: [
+                            Container(
+                                decoration: BoxDecoration(
+                                  color: Color(0xffe9e9e9),
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                child: Text(
+                                  calculateDDay(task['task_dateTime']),
+                                  style: TextStyle(color: Colors.black54),
+                                )),
+                            SizedBox(
+                              width: 10,
                             ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            child: Text(
-                              calculateDDay(task['task_dateTime']),
-                              style: TextStyle(color: Colors.black54),
-                            )),
-                        SizedBox(
-                          width: 10,
+                            Container(
+                              decoration: BoxDecoration(
+                                color: calculateDuration(task['task_startTime'],
+                                            task['task_endTime']) ==
+                                        ''
+                                    ? Colors.white
+                                    : Color(0xffe9e9e9),
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: Text(
+                                calculateDuration(task['task_startTime'],
+                                    task['task_endTime']),
+                                style: TextStyle(
+                                  color: calculateDuration(
+                                              task['task_startTime'],
+                                              task['task_endTime']) ==
+                                          ''
+                                      ? Colors.black
+                                      : Colors.black54,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         Container(
+                          width: 43,
                           decoration: BoxDecoration(
-                            color: calculateDuration(task['task_startTime'],
-                                        task['task_endTime']) ==
-                                    ''
-                                ? Colors.white
-                                : Color(0xffe9e9e9),
-                            borderRadius: BorderRadius.circular(20.0),
+                            color: Colors.black,
+                            shape: BoxShape.circle,
                           ),
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Text(
-                            calculateDuration(
-                                task['task_startTime'], task['task_endTime']),
-                            style: TextStyle(
-                              color: calculateDuration(task['task_startTime'],
-                                          task['task_endTime']) ==
-                                      ''
-                                  ? Colors.black
-                                  : Colors.black54,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailScreen(task: task),
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              MaterialCommunityIcons.arrow_top_right,
+                              color: Colors.white,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ],
-                ),
-                trailing: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DetailScreen(task: task),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        MaterialCommunityIcons.arrow_top_right,
-                        color: Colors.white,
-                      )),
                 ),
                 onTap: () {
                   Navigator.push(
@@ -429,29 +452,88 @@ class _WeekCalendarState extends State<CalendarScreen> {
                       ));
                 },
               ));
-
-          // 멤버 목록
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.start,
-          //   children: [
-          //     Padding(
-          //       padding: EdgeInsets.symmetric(horizontal: 16),
-          //       child: Text(
-          //         '${task['members'].join(',')}',
-          //         style: TextStyle(fontSize: 14, color: Colors.black54),
-          //       ),
-          //     ),
-          //     Padding(
-          //       padding: EdgeInsets.symmetric(horizontal: 16),
-          //       child: Text(
-          //         '${task['task_description']}',
-          //         style: TextStyle(fontSize: 14, color: Colors.black54),
-          //       ),
-          //     )
-          //   ],
-          // )
         },
       ),
     );
   }
+}
+
+Widget _memberAvatars(List<String> members) {
+  if (members.isEmpty) {
+    return Text('');
+  }
+
+  int maxDisplay = 3;
+  List<String> displayMembers = members.take(maxDisplay).toList();
+  int remainingCount =
+      members.length > maxDisplay ? members.length - maxDisplay : 0;
+
+  return Container(
+      height: 40.0,
+      width: 110.0,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            ...displayMembers
+                .asMap()
+                .map((index, member) {
+                  String firstLetter =
+                      member.isNotEmpty ? member[0].toUpperCase() : '';
+                  return MapEntry(
+                    index,
+                    Positioned(
+                      left: index * 25.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xffe9e9e9),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2.0,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Colors.transparent,
+                          child: Text(
+                            firstLetter,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                })
+                .values
+                .toList(),
+            if (remainingCount > 0)
+              Positioned(
+                left: displayMembers.length * 25.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xffff4700),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2.0,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 18.0,
+                    backgroundColor: Colors.transparent,
+                    child: Text(
+                      '+$remainingCount',
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ));
 }
