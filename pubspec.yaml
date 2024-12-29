@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  dropdown_button2: ^2.3.9
   flutter_vector_icons: ^2.0.0
   provider: ^6.1.2
   shared_preferences: 2.3.3
@@ -64,6 +65,24 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  fonts:
+    - family: FredokaBold
+      fonts:
+        - asset: assets/fonts/Fredoka-Bold.ttf
+    - family: FredokaSemiBold
+      fonts:
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
+    - family: FredokaRegular
+      fonts:
+        - asset: assets/fonts/Fredoka-Regular.ttf
+    - family: FredokaMedium
+      fonts:
+        - asset: assets/fonts/Fredoka-Medium.ttf
+    - family: FredokaLight
+      fonts:
+        - asset: assets/fonts/Fredoka-Light.ttf
+
 
 
   # To add assets to your application, add an assets section, like this:

@@ -6,6 +6,7 @@ import 'package:task_management/screens/add_schedule_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:task_management/screens/detail_Screen.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -187,17 +188,21 @@ class _WeekCalendarState extends State<CalendarScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            DropdownButton<int>(
+            DropdownButton2<int>(
               value: _selectedDay.month,
-              dropdownColor: Color(0xFFff4700),
-              underline: SizedBox.shrink(),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+              dropdownStyleData: DropdownStyleData(
+                decoration: BoxDecoration(
+                  color: Color(0xffffe7d6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              icon: Icon(Icons.keyboard_arrow_down_rounded,
-                  color: Color(0xffffe7d6), size: 32),
+              underline: SizedBox.shrink(),
+              iconStyleData: IconStyleData(
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: Color(0xffffe7d6),
+                ),
+              ),
               onChanged: (int? newValue) {
                 setState(() {
                   _selectedDay = DateTime(
@@ -213,26 +218,66 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   value: monthNumber,
                   child: Text(
                     stringMonth[index],
-                    style: TextStyle(color: Color(0xffffe7d6)),
+                    style: TextStyle(
+                        fontFamily: 'FredokaSemiBold',
+                        color: monthNumber == _selectedDay.month
+                            ? Color(0xffffe7d6)
+                            : Color(0xffff4700),
+                        fontSize: monthNumber == _selectedDay.month ? 30 : 20),
                   ),
                 );
               }),
             ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddScheduleScreen(date: _selectedDay),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AddScheduleScreen(date: _selectedDay),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.add,
+                    color: Color(0xffffe7d6),
+                    size: 25,
                   ),
-                );
-              },
-              icon: Icon(
-                Icons.add,
-                color: Color(0xffffe7d6),
-                size: 30,
-              ),
-            )
+                ),
+                IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AddScheduleScreen(date: _selectedDay),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.calendar_month,
+                      color: Color(0xffffe7d6),
+                      size: 25,
+                    )),
+                IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AddScheduleScreen(date: _selectedDay),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.more_horiz_rounded,
+                      color: Color(0xffffe7d6),
+                      size: 25,
+                    )),
+              ],
+            ),
           ]),
           SizedBox(height: 16),
           Row(

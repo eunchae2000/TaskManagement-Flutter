@@ -23,41 +23,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> schedules = [
-      {
-        'date': '2024-12-18', // 날짜
-        'startTime': '10:00 AM', // 시작 시간
-        'endTime': '11:00 AM', // 종료 시간
-        'title': 'Project Meeting', // 일정 제목
-        'description': 'Discuss project progress and deadlines', // 일정 설명
-        'time': '10:00 AM - 11:00 AM', // 시간 (병합된 형태로 사용 가능)
-        'members': ['Alice', 'Bob', 'Charlie'] // 참여 멤버 목록
-      },
-      {
-        'date': '2024-12-18',
-        'startTime': '1:00 PM',
-        'endTime': '2:00 PM',
-        'title': 'Team Lunch',
-        'description': 'Lunch with the team at the cafeteria',
-        'time': '1:00 PM - 2:00 PM',
-        'members': ['David', 'Ella', 'Frank']
-      },
-      {
-        'date': '2024-12-18',
-        'startTime': '6:00 PM',
-        'endTime': '7:00 PM',
-        'title': 'Workout Session',
-        'description': 'Evening workout at the gym',
-        'time': '6:00 PM - 7:00 PM',
-        'members': ['George', 'Hannah']
-      }
-    ];
     return ChangeNotifierProvider(
       create: (context) => ScheduleProvider(),
       child: MaterialApp(
         title: 'Task Management',
         theme: ThemeData(
           primarySwatch: Colors.amber,
+          fontFamily: 'FredokaSemiBold'
         ),
         home: LoginScreen(),
       ),
