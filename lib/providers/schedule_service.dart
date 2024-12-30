@@ -282,4 +282,28 @@ class ScheduleService {
       throw Exception('Error fetching notifications');
     }
   }
+
+  Future<Map<String, dynamic>> sendFriendRequest(String email) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+
+    final response = await http.post(Uri.parse('$baseUrl/friend-request'),
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: json.encode({
+        'user_id': userId,
+        'user_email' : email,
+        }),
+    );
+
+    if(response.statusCode == 201){
+      return json.decode(response.body);
+    }else{
+      return {
+        'success': false,
+        'error': json.decode(response.body)['error'] ?? 'Unknown error',
+      };
+    }
+  }
 }
