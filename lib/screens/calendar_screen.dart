@@ -257,21 +257,6 @@ class _WeekCalendarState extends State<CalendarScreen> {
                       );
                     },
                     icon: Icon(
-                      Icons.calendar_month,
-                      color: Color(0xffffe7d6),
-                      size: 25,
-                    )),
-                IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AddScheduleScreen(date: _selectedDay),
-                        ),
-                      );
-                    },
-                    icon: Icon(
                       Icons.more_horiz_rounded,
                       color: Color(0xffffe7d6),
                       size: 25,

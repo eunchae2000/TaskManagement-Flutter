@@ -66,6 +66,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/icon/7.svg
+    - assets/icon/31.svg
+
   fonts:
     - family: FredokaBold
       fonts:
