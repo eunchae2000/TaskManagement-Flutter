@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/calendar_screen.dart';
 import 'package:task_management/screens/register_screen.dart';
+import 'package:task_management/main.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -32,8 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('User login successfully')),
         );
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CalendarScreen()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
