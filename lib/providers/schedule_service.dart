@@ -246,4 +246,40 @@ class ScheduleService {
       throw Exception('Server error: ${response.statusCode}');
     }
   }
+  Future<List<dynamic>> fetchNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+
+    if (userId == null) {
+      print('Error: userId is null');
+      throw Exception('User ID not found in SharedPreferences');
+    }
+
+    try{
+      final response = await http.get(
+        Uri.parse('$baseUrl/notifications/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is Map<String, dynamic> && data['data'] is List<dynamic>) {
+          return data['data'];
+        }
+        if (data is List<dynamic>) {
+          return data; // 배열 반환
+        }
+        throw Exception("Json structure");
+
+      } else {
+        print(response.statusCode);
+        final error = json.decode(response.body)['error'] ?? 'Unknown error';
+        print(error);
+        throw Exception(error);
+      }
+    }catch(e){
+      print('Error: $e');
+      throw Exception('Error fetching notifications');
+    }
+  }
 }
