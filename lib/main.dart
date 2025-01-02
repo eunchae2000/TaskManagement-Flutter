@@ -5,7 +5,6 @@ import 'package:task_management/screens/calendar_screen.dart';
 import 'package:task_management/screens/login_screen.dart';
 import 'package:task_management/screens/members_screen.dart';
 import 'package:task_management/screens/notifications_screen.dart';
-import 'package:task_management/screens/register_screen.dart';
 import 'package:task_management/screens/search_screen.dart';
 import 'package:task_management/screens/setting_screen.dart';
 

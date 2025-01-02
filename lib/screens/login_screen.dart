@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
-import 'package:task_management/screens/calendar_screen.dart';
 import 'package:task_management/screens/register_screen.dart';
 import 'package:task_management/main.dart';
 
