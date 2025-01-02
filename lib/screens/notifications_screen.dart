@@ -22,10 +22,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0.0),
+        preferredSize: Size.fromHeight(25.0),
         child: AppBar(
-          title: null,
-          automaticallyImplyLeading: false,
+          title: Text('Notifications'),
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
@@ -120,14 +119,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(
+            left: 15,
+            right: 15,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  if (notifications.length > 3)
+                    IconButton(
+                      onPressed: toggleShowFullList,
+                      icon: Icon(
+                        showFullList
+                            ? Icons.expand_less
+                            : Icons.more_horiz_rounded,
+                        size: 24,
+                      ),
+                    )
+                ],
               ),
               if (unreadCount > 0) _buildUnreadCountCircle(unreadCount),
             ],
@@ -135,11 +151,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         ...displayedNotifications.map<Widget>(
             (notification) => _buildNotificationTile(notification)),
-        if (notifications.length > 3)
-          TextButton(
-            onPressed: toggleShowFullList,
-            child: Text(showFullList ? 'Show Less' : 'Show More'),
-          ),
       ],
     );
   }
@@ -169,9 +180,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return ListTile(
       leading: Icon(
         notification['notifications_type'] == 'task'
-            ? Icons.task
+            ? Icons.task_alt_rounded
             : Icons.account_circle_rounded,
-        color: Colors.blue,
+        color: Color(0xffff4700),
+        size: 30,
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
