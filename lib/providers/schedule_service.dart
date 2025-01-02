@@ -129,7 +129,7 @@ class ScheduleService {
           throw Exception('API error: ${responseData['message']}');
         }
       } else {
-        throw Exception('친구 목록을 불러오는 데 실패했습니다.');
+        throw Exception('fetch friend list failed.');
       }
     } catch (e) {
       throw Exception('에러 발생: $e');
@@ -143,7 +143,7 @@ class ScheduleService {
     String taskStartTime,
     String taskEndTime,
     String taskDateTime,
-    int categorieId,
+    int categoryId,
   ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -164,7 +164,7 @@ class ScheduleService {
       'task_startTime': taskStartTime,
       'task_endTime': taskEndTime,
       'task_dateTime': taskDateTime,
-      'categorie_id': categorieId,
+      'categorie_id': categoryId,
       'friend_name': friendNames,
       'user_id': userId,
       'token': token,
@@ -233,7 +233,6 @@ class ScheduleService {
       if (responseData is Map<String, dynamic> &&
           responseData.containsKey('data')) {
         final data = responseData['data'];
-        print(data);
         if (data is List) {
           return data.map((item) => Map<String, dynamic>.from(item)).toList();
         } else {
@@ -253,7 +252,6 @@ class ScheduleService {
     String? userId = prefs.getString('user_id');
 
     if (userId == null) {
-      print('Error: userId is null');
       throw Exception('User ID not found in SharedPreferences');
     }
 
@@ -273,13 +271,10 @@ class ScheduleService {
         }
         throw Exception("Json structure");
       } else {
-        print(response.statusCode);
         final error = json.decode(response.body)['error'] ?? 'Unknown error';
-        print(error);
         throw Exception(error);
       }
     } catch (e) {
-      print('Error: $e');
       throw Exception('Error fetching notifications');
     }
   }

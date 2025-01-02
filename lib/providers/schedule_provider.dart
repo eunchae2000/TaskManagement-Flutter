@@ -24,7 +24,7 @@ class ScheduleProvider with ChangeNotifier {
     } catch (e) {
       isAuthenticated = false;
       notifyListeners();
-      throw e;
+      rethrow;
     }
   }
 
@@ -36,7 +36,7 @@ class ScheduleProvider with ChangeNotifier {
     }catch(e){
       isAuthenticated = false;
       notifyListeners();
-      throw e;
+      rethrow;
     }
   }
 

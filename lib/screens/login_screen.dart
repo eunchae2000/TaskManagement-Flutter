@@ -29,26 +29,30 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await scheduleService.login(
           emailController.text, passwordController.text);
 
-      if (response['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User login successfully')),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-            response['message'] ?? 'Failed to login',
-          )),
-        );
+      if (mounted) {
+        if (response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User login successfully')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+              response['message'] ?? 'Failed to login',
+            )),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     } finally {
       setState(() {
         isLoading = false;
@@ -149,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.blue,
                       ),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = navigateToSignUp, // 클릭 시 URL 열기
+                        ..onTap = navigateToSignUp,
                     ),
                   ],
                 ),

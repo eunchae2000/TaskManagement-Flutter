@@ -14,13 +14,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final ScheduleService scheduleService = ScheduleService();
   bool isLoading = false;
-  bool _obscureText = true;
-
-  void _togglePasswordView() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
 
   void register() async {
     try {
@@ -32,21 +25,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final response = await scheduleService.register(usernameController.text,
           emailController.text, passwordController.text);
 
-      if (response['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User registered successfully')),
-        );
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginScreen()));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to register: ${response['message']}')),
-        );
+      if (mounted) {
+        if (response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User registered successfully')),
+          );
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Failed to register: ${response['message']}')),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to register: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to register: $e')),
+        );
+      }
     } finally {
       setState(() {
         isLoading = false;
@@ -79,23 +77,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
                 controller: usernameController,
                 decoration: customInputDecoration(
-                    labelText: 'Username', hintText: 'Gildong Hong',
-                suffixIcon: Icon(Icons.person))),
+                    labelText: 'Username',
+                    hintText: 'Gildong Hong',
+                    suffixIcon: Icon(Icons.person))),
             SizedBox(height: 15),
             TextField(
                 controller: emailController,
                 decoration: customInputDecoration(
-                    labelText: 'Email', hintText: 'gildong@example.com',
-                suffixIcon: Icon(Icons.email_outlined))),
+                    labelText: 'Email',
+                    hintText: 'gildong@example.com',
+                    suffixIcon: Icon(Icons.email_outlined))),
             SizedBox(height: 15),
             TextField(
-                controller: passwordController,
-                decoration: customInputDecoration(
-                  labelText: 'Password',
-                  hintText: 'xxxxxxxx',
-                  suffixIcon: Icon(Icons.visibility_off_outlined),
-                ),
-            obscureText: true,),
+              controller: passwordController,
+              decoration: customInputDecoration(
+                labelText: 'Password',
+                hintText: 'xxxxxxxx',
+                suffixIcon: Icon(Icons.visibility_off_outlined),
+              ),
+              obscureText: true,
+            ),
             SizedBox(height: 50),
             ElevatedButton(
               onPressed: isLoading ? null : register,

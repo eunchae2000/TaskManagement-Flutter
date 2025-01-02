@@ -42,14 +42,14 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     try {
       List<Map<String, dynamic>> friendList =
           await scheduleService.friendsList();
-      print(friendList.runtimeType);
       setState(() {
         friends = friendList;
       });
     } catch (e) {
-      print("error!!!!! $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('친구 목록을 불러오는 데 실패했습니다.')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Friend List Failed')));
+      }
     }
   }
 
@@ -60,17 +60,19 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
         categories = fetchedCategories;
       });
     } catch (error) {
-      print('Error loading categories: $error');
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('load Category Failed')));
+      }
     }
   }
 
   List<Map<String, dynamic>> schedules = [];
-  TextEditingController _eventController = TextEditingController();
+  final TextEditingController _eventController = TextEditingController();
 
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
 
-  // week 이동
   DateTime get _startOfWeek =>
       _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
 
@@ -114,7 +116,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     return '${date.year}-${date.month}-${date.day}';
   }
 
-  // 선택한 시간
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     TimeOfDay initialTime = isStartTime
         ? (_startTime ?? TimeOfDay.now())
@@ -140,11 +141,11 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   TextEditingController textFieldController = TextEditingController();
 
   Future<void> _addTask() async {
-    final selectedFriends = selectFriends.map((friend) => friend['user_name'] as String).toList();
+    final selectedFriends =
+        selectFriends.map((friend) => friend['user_name'] as String).toList();
 
     if (titleController.text.isEmpty ||
         descriptionController.text.isEmpty ||
-        _selectedDate == null ||
         _startTime == null ||
         _endTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -162,16 +163,18 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       getFormattedDate(_selectedDate),
       selectedCategoryId ?? 1,
     );
-    if (result['success']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('success: $_selectedDate.month')),
-      );
-      Navigator.pop(context);
-      _eventController.clear();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${result['message']}')),
-      );
+    if (mounted) {
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('success: $_selectedDate.month')),
+        );
+        Navigator.pop(context);
+        _eventController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${result['message']}')),
+        );
+      }
     }
   }
 
@@ -316,13 +319,12 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 underline: SizedBox.shrink(),
                 items: categories.map((category) {
                   return DropdownMenuItem<int>(
-                      value: category['categorie_id'],
-                      child: Container(
-                        child: Text(
-                          category['categorie_name'],
-                          style: TextStyle(fontWeight: FontWeight.normal),
-                        ),
-                      ));
+                    value: category['categorie_id'],
+                    child: Text(
+                      category['categorie_name'],
+                      style: TextStyle(fontWeight: FontWeight.normal),
+                    ),
+                  );
                 }).toList(),
               ),
             ),
@@ -395,12 +397,9 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 items: friends.map((friend) {
                   return DropdownMenuItem<Map<String, dynamic>>(
                     value: friend,
-                    child: Container(
-                      child: Text(
-                        friend['user_name'] ?? 'Unknown',
-                        // Display the user name
-                        style: TextStyle(fontWeight: FontWeight.normal),
-                      ),
+                    child: Text(
+                      friend['user_name'] ?? 'Unknown',
+                      style: TextStyle(fontWeight: FontWeight.normal),
                     ),
                   );
                 }).toList(),
@@ -440,14 +439,13 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 17.0, horizontal: 16.0),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 17.0, horizontal: 16.0),
                   backgroundColor: Colors.white,
                   foregroundColor: Color(0xffff4700),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
-                    side:
-                    BorderSide(color: Color(0xffff4700), width: 2.0),
+                    side: BorderSide(color: Color(0xffff4700), width: 2.0),
                   ),
                 ),
                 child: Text('Cancel', style: TextStyle(fontSize: 17)),
@@ -468,8 +466,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   if (_startTime == null || _endTime == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                          content: Text(
-                              'Please select both start and end times!')),
+                          content:
+                              Text('Please select both start and end times!')),
                     );
                     return;
                   }
@@ -482,22 +480,20 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   if (startTimeInMinutes >= endTimeInMinutes) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                          content:
-                          Text('End time must be after start time!')),
+                          content: Text('End time must be after start time!')),
                     );
                     return;
                   }
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Schedule added successfully!')),
+                    SnackBar(content: Text('Schedule added successfully!')),
                   );
 
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 17.0, horizontal: 16.0),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 17.0, horizontal: 16.0),
                   backgroundColor: Color(0xffff4700),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(

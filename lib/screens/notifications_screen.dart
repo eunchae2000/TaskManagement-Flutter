@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
 
@@ -134,9 +133,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ],
           ),
         ),
-        ...displayedNotifications
-            .map<Widget>((notification) => _buildNotificationTile(notification))
-            .toList(),
+        ...displayedNotifications.map<Widget>(
+            (notification) => _buildNotificationTile(notification)),
         if (notifications.length > 3)
           TextButton(
             onPressed: toggleShowFullList,

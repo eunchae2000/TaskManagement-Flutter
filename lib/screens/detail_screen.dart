@@ -136,7 +136,7 @@ Widget _memberAvatars(List<String> members) {
                 ),
               ),
             );
-          }).toList(),
+          }),
 
           if (remainingCount > 0)
             Positioned(
