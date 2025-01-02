@@ -27,7 +27,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   List<Map<String, dynamic>> selectFriends = [];
   Map<String, dynamic>? selectedFriend;
 
-  // 카테고리
   List<Map<String, dynamic>> categories = [];
   int? selectedCategoryId;
   String? selectedCategoryName;
@@ -52,16 +51,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('친구 목록을 불러오는 데 실패했습니다.')));
     }
-  }
-
-  void _selectFriends(Map<String, dynamic> friend) {
-    setState(() {
-      if (selectFriends.contains(friend)) {
-        selectFriends.remove(friend);
-      } else {
-        selectFriends.add(friend);
-      }
-    });
   }
 
   Future<void> _loadCategories() async {
@@ -151,6 +140,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   TextEditingController textFieldController = TextEditingController();
 
   Future<void> _addTask() async {
+    final selectedFriends = selectFriends.map((friend) => friend['user_name'] as String).toList();
+
     if (titleController.text.isEmpty ||
         descriptionController.text.isEmpty ||
         _selectedDate == null ||
@@ -163,6 +154,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     }
 
     final result = await scheduleService.addTask(
+      selectedFriends,
       titleController.text,
       descriptionController.text,
       _startTime!.format(context),
@@ -172,7 +164,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     );
     if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $_selectedDate.month')),
+        SnackBar(content: Text('success: $_selectedDate.month')),
       );
       Navigator.pop(context);
       _eventController.clear();

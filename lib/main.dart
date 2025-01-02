@@ -58,65 +58,51 @@ class _MainScreenState extends State<MainScreen> {
         automaticallyImplyLeading: false,
       ),
       body: _pages[_currentIndex],
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 30.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(40),
-          clipBehavior: Clip.hardEdge,
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                  size: 30.0,
-                ),
-                label: "",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.search,
-                  size: 30.0,
-                ),
-                label: "",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.settings,
-                  size: 30.0,
-                ),
-                label: "",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.people,
-                  size: 30.0,
-                ),
-                label: "",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.notifications,
-                  size: 30.0,
-                ),
-                label: "",
-              ),
-            ],
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Color(0xff637899),
-            selectedItemColor: Color(0xffFF4700),
-            unselectedItemColor: Color(0xffDDF2FF),
-            selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
-            elevation: 10,
-            showUnselectedLabels: false,
-          ),
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        notchMargin: 6.0,
+        color: Color(0xff637899),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(Icons.home, 0),
+            _buildNavItem(Icons.search, 1),
+            _buildNavItem(Icons.settings, 2),
+            _buildNavItem(Icons.people, 3),
+            _buildNavItem(Icons.notifications, 4),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, int index) {
+    bool isSelected = _currentIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? Color(0xffFF4700) : Color(0xffDDF2FF),
+            size: isSelected ? 26 : 26,
+          ),
+          if (isSelected)
+            Container(
+              margin: EdgeInsets.only(top: 4),
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: Color(0xffFF4700),
+                shape: BoxShape.circle,
+              ),
+            ),
+        ],
       ),
     );
   }

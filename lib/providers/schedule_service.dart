@@ -137,6 +137,7 @@ class ScheduleService {
   }
 
   Future<Map<String, dynamic>> addTask(
+    List<String> friendNames,
     String taskTitle,
     String taskDescription,
     String taskStartTime,
@@ -164,6 +165,7 @@ class ScheduleService {
       'task_endTime': taskEndTime,
       'task_dateTime': taskDateTime,
       'categorie_id': categorieId,
+      'friend_name': friendNames,
       'user_id': userId,
       'token': token,
     };
@@ -194,7 +196,6 @@ class ScheduleService {
   }
 
   Future<List<String>> getParticipant(int taskId) async {
-
     final response = await http.get(
       Uri.parse('$baseUrl/task/$taskId/participants'),
       headers: {
@@ -246,6 +247,7 @@ class ScheduleService {
       throw Exception('Server error: ${response.statusCode}');
     }
   }
+
   Future<List<dynamic>> fetchNotifications() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
@@ -255,7 +257,7 @@ class ScheduleService {
       throw Exception('User ID not found in SharedPreferences');
     }
 
-    try{
+    try {
       final response = await http.get(
         Uri.parse('$baseUrl/notifications/$userId'),
         headers: {'Content-Type': 'application/json'},
@@ -267,39 +269,39 @@ class ScheduleService {
           return data['data'];
         }
         if (data is List<dynamic>) {
-          return data; // 배열 반환
+          return data;
         }
         throw Exception("Json structure");
-
       } else {
         print(response.statusCode);
         final error = json.decode(response.body)['error'] ?? 'Unknown error';
         print(error);
         throw Exception(error);
       }
-    }catch(e){
+    } catch (e) {
       print('Error: $e');
       throw Exception('Error fetching notifications');
     }
   }
 
-  Future<Map<String, dynamic>> sendFriendRequest(String email) async{
+  Future<Map<String, dynamic>> sendFriendRequest(String email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
 
-    final response = await http.post(Uri.parse('$baseUrl/friend-request'),
-        headers: {
+    final response = await http.post(
+      Uri.parse('$baseUrl/friend-request'),
+      headers: {
         'Content-Type': 'application/json',
-        },
-        body: json.encode({
+      },
+      body: json.encode({
         'user_id': userId,
-        'user_email' : email,
-        }),
+        'user_email': email,
+      }),
     );
 
-    if(response.statusCode == 201){
+    if (response.statusCode == 201) {
       return json.decode(response.body);
-    }else{
+    } else {
       return {
         'success': false,
         'error': json.decode(response.body)['error'] ?? 'Unknown error',
