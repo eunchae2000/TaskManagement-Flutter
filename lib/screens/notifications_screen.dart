@@ -10,6 +10,8 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final ScheduleService _scheduleService = ScheduleService();
   Future<List<dynamic>>? _notificationsFuture;
+  bool showFullTaskList = false;
+  bool showFullFriendList = false;
 
   @override
   void initState() {
@@ -20,11 +22,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifications'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(0.0),
+        child: AppBar(
+          title: null,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
       ),
       body: _buildNotificationList(),
     );
+  }
+
+  String formatTimeAgo(String notificationCreateAt) {
+    DateTime notificationDateTime = DateTime.parse(notificationCreateAt);
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(notificationDateTime);
+
+    if (difference.inDays < 1) {
+      if (difference.inHours < 1) {
+        return '${difference.inMinutes}m';
+      } else {
+        return '${difference.inHours}h';
+      }
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return '${notificationDateTime.year}-${notificationDateTime.month}-${notificationDateTime.day}';
+    }
   }
 
   Widget _buildNotificationList() {
@@ -43,24 +69,145 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildListView(List<dynamic> notifications) {
-    return ListView.builder(
-      itemCount: notifications.length,
-      itemBuilder: (context, index) {
-        final notification = notifications[index];
-        return _buildNotificationTile(notification);
-      },
+    final taskNotifications = notifications
+        .where((notification) => notification['notifications_type'] == 'task')
+        .toList();
+    final friendNotifications = notifications
+        .where(
+            (notification) => notification['notifications_type'] == 'friends')
+        .toList();
+
+    return ListView(
+      children: [
+        _buildNotificationSection(
+          title: 'Tasks',
+          notifications: taskNotifications,
+          showFullList: showFullTaskList,
+          toggleShowFullList: () {
+            setState(() {
+              showFullTaskList = !showFullTaskList;
+            });
+          },
+        ),
+        _buildNotificationSection(
+          title: 'Friends',
+          notifications: friendNotifications,
+          showFullList: showFullFriendList,
+          toggleShowFullList: () {
+            setState(() {
+              showFullFriendList = !showFullFriendList;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotificationSection({
+    required String title,
+    required List<dynamic> notifications,
+    required bool showFullList,
+    required VoidCallback toggleShowFullList,
+  }) {
+    final unreadCount = notifications
+        .where(
+            (notification) => notification['notifications_status'] == 'unread')
+        .length;
+
+    final displayedNotifications =
+        showFullList ? notifications : notifications.take(3).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              if (unreadCount > 0) _buildUnreadCountCircle(unreadCount),
+            ],
+          ),
+        ),
+        ...displayedNotifications
+            .map<Widget>((notification) => _buildNotificationTile(notification))
+            .toList(),
+        if (notifications.length > 3)
+          TextButton(
+            onPressed: toggleShowFullList,
+            child: Text(showFullList ? 'Show Less' : 'Show More'),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildUnreadCountCircle(int count) {
+    return Container(
+      width: 45,
+      padding: const EdgeInsets.all(4.0),
+      decoration: BoxDecoration(
+        color: Color(0xffFF4700),
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Text(
+        '$count',
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
   Widget _buildNotificationTile(Map<String, dynamic> notification) {
     return ListTile(
       leading: Icon(
-        notification['type'] == 'task' ? Icons.task : Icons.account_circle_rounded,
+        notification['notifications_type'] == 'task'
+            ? Icons.task
+            : Icons.account_circle_rounded,
         color: Colors.blue,
       ),
-      title: Text(notification['action'] ?? 'No Action'),
-      subtitle: Text('From: ${notification['sender_name'] ?? 'Unknown'}'),
-      trailing: Text(notification['status'] ?? 'No Status'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(notification['sender_name'] ?? 'Unknown'),
+          Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: Color(0xffd9d9d9),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(width: 5),
+              Text(
+                formatTimeAgo(notification['notifications_createdAt']),
+                style: TextStyle(fontSize: 10),
+              ),
+            ],
+          ),
+        ],
+      ),
+      subtitle: Text(
+        notification['notifications_type'] == 'task'
+            ? (notification['notifications_action'] == 'request'
+                ? 'Sent a task participation request'
+                : notification['notifications_action'] == 'response'
+                    ? 'Received a response to your task participation'
+                    : 'Task action not recognized')
+            : 'Sent a member request',
+      ),
+      trailing: Text(notification['notifications_status'] ?? 'No Status'),
     );
   }
 }

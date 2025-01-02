@@ -94,7 +94,6 @@ class _WeekCalendarState extends State<CalendarScreen> {
   }
 
   List<DateTime> getWeekDates(DateTime selectDate) {
-    final int currentWeekDay = selectDate.weekday;
     final DateTime startOfWeek =
         selectDate.subtract(Duration(days: _selectedDay.weekday % 7));
 
