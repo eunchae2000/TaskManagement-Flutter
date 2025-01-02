@@ -113,6 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black54,
+                      fontFamily: 'FredokaSemiBold',
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = navigateToSignUp,
@@ -143,7 +144,10 @@ class _LoginScreenState extends State<LoginScreen> {
               RichText(
                 text: TextSpan(
                   text: 'Not a member? ',
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'FredokaSemiBold',
+                  ),
                   children: <TextSpan>[
                     TextSpan(
                       text: 'Register now',
