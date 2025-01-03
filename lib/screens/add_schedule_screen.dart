@@ -19,7 +19,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController endTimeController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  int? selectedUserId;
 
   final ScheduleService scheduleService = ScheduleService();
 

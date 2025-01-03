@@ -247,6 +247,17 @@ class ScheduleService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> searchFriends(String query) async{
+    final response = await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
+
+    if (response.statusCode == 200) {
+      List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(json.decode(response.body));
+      return friends;
+    } else {
+      throw Exception('Failed to load friends');
+    }
+  }
+
   Future<List<dynamic>> fetchNotifications() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
@@ -263,6 +274,7 @@ class ScheduleService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('data $data');
         if (data is Map<String, dynamic> && data['data'] is List<dynamic>) {
           return data['data'];
         }
