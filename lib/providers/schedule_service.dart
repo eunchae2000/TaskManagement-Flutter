@@ -327,7 +327,6 @@ class ScheduleService {
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
-
         if (responseBody is List &&
             responseBody.isNotEmpty &&
             responseBody[0] is List) {
@@ -359,7 +358,6 @@ class ScheduleService {
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
-
         if (responseBody is List &&
             responseBody.isNotEmpty &&
             responseBody[0] is List) {
