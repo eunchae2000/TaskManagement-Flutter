@@ -247,11 +247,13 @@ class ScheduleService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> searchFriends(String query) async{
-    final response = await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
+  Future<List<Map<String, dynamic>>> searchFriends(String query) async {
+    final response =
+        await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
 
     if (response.statusCode == 200) {
-      List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(json.decode(response.body));
+      List<Map<String, dynamic>> friends =
+          List<Map<String, dynamic>>.from(json.decode(response.body));
       return friends;
     } else {
       throw Exception('Failed to load friends');
@@ -274,7 +276,6 @@ class ScheduleService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('data $data');
         if (data is Map<String, dynamic> && data['data'] is List<dynamic>) {
           return data['data'];
         }
@@ -313,6 +314,93 @@ class ScheduleService {
         'success': false,
         'error': json.decode(response.body)['error'] ?? 'Unknown error',
       };
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchSentInvite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/sentRequest/$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+
+        if (responseBody is List &&
+            responseBody.isNotEmpty &&
+            responseBody[0] is List) {
+          return (responseBody[0] as List).map((item) {
+            if (item is Map<String, dynamic>) {
+              return item;
+            } else {
+              throw Exception('Unexpected item structure in API response');
+            }
+          }).toList();
+        } else {
+          throw Exception('Unexpected API response structure');
+        }
+      } else {
+        throw Exception('Failed to fetch sent invites');
+      }
+    } catch (e) {
+      throw Exception('Error fetching sent invites: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchReceivedInvites() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/receiveRequest/$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+
+        if (responseBody is List &&
+            responseBody.isNotEmpty &&
+            responseBody[0] is List) {
+          return (responseBody[0] as List).map((item) {
+            if (item is Map<String, dynamic>) {
+              return item;
+            } else {
+              throw Exception('Unexpected item structure in API response');
+            }
+          }).toList();
+        } else {
+          throw Exception('Unexpected API response structure');
+        }
+      } else {
+        throw Exception('Failed to fetch sent invites');
+      }
+    } catch (e) {
+      throw Exception('Error fetching received invites: $e');
+    }
+  }
+
+  Future<void> respondToInvite(int friendId, String response) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+
+    try {
+      final result = await http.put(
+        Uri.parse('$baseUrl/response'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'user_id': userId,
+          'friend_id': friendId,
+          'response': response,
+        }),
+      );
+
+      if (result.statusCode != 200) {
+        throw Exception('Failed to respond to invite');
+      }
+    } catch (e) {
+      throw Exception('Error responding to invite: $e');
     }
   }
 }

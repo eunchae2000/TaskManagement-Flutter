@@ -9,73 +9,59 @@ class MembersScreen extends StatefulWidget {
 class _MemberScreenState extends State<MembersScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<Map<String, dynamic>> sentInvites = [];
+  List<Map<String, dynamic>> receiveInvites = [];
 
   final ScheduleService scheduleService = ScheduleService();
-
-  List<Map<String, dynamic>> friends = [];
-  List<Map<String, dynamic>> filterFriends = [];
-  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadFriends();
-  }
-
-  Future<List<Map<String, dynamic>>> _loadFriends() async {
-    try {
-      List<Map<String, dynamic>> friendList =
-          await scheduleService.friendsList();
-      setState(() {
-        friends = friendList;
-        filterFriends = friendList;
-      });
-      return friendList;
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Friend List Failed: $e')));
-      }
-      return [];
-    }
-  }
-
-  void _filterFriends(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        filterFriends = friends;
-      });
-    } else {
-      scheduleService.searchFriends(query).then((friends) {
-        setState(() {
-          filterFriends = friends;
-        });
-      }).catchError((e) {
-        setState(() {
-          filterFriends = [];
-        });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error: $e')));
-      });
-    }
+    scheduleService.fetchSentInvite();
+    _loadSentInvites();
+    _loadReceivedInvites();
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
     _tabController.dispose();
     super.dispose();
   }
 
-  Future<List<String>> fetchMembers() async {
-    await Future.delayed(Duration(seconds: 2));
-    return ['Member 1', 'Member 2', 'Member 3'];
+  Future<void> _loadSentInvites() async{
+    try{
+      List<Map<String, dynamic>> invites = await scheduleService.fetchSentInvite();
+      setState(() {
+        sentInvites = invites;
+      });
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading invites: $e')));
+    }
   }
 
-  Future<List<String>> fetchInvites() async {
-    await Future.delayed(Duration(seconds: 2));
-    return ['Invite 1', 'Invite 2', 'Invite 3'];
+  Future<void> _loadReceivedInvites() async{
+    try{
+      List<Map<String, dynamic>> invites =
+      await scheduleService.fetchReceivedInvites();
+      setState(() {
+        receiveInvites = invites;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading invites: $e')));
+    }
+  }
+
+  Future<void> _responseToInvite(int friendId, String response) async{
+    try{
+      await scheduleService.respondToInvite(friendId, response);
+      _loadReceivedInvites();
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading invites: $e')));
+    }
   }
 
   @override
@@ -89,7 +75,7 @@ class _MemberScreenState extends State<MembersScreen>
             controller: _tabController,
             tabs: [
               Tab(text: 'Members'),
-              Tab(text: 'Invites'),
+              Tab(text: 'Project'),
             ],
             indicatorColor: Color(0xffff4700),
             labelColor: Color(0xffff4700),
@@ -100,62 +86,59 @@ class _MemberScreenState extends State<MembersScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _filterFriends,
-                  decoration: customInputDecoration(
-                    hintText: 'Search Members',
-                    labelText: 'Search Members',
-                    suffixIcon: Icon(
-                      Icons.search,
-                      color: Color(0xffff4700),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                  child: filterFriends.isEmpty
-                      ? Center(child: Text('No Member Found.'))
-                      : ListView.builder(
-                          itemCount: filterFriends.length,
-                          itemBuilder: (context, index) {
-                            var friend = filterFriends[index];
-                            return ListTile(
-                              leading: Icon(
-                                Icons.account_circle_rounded,
-                                size: 30,
-                                color: Color(0xffff4700),
-                              ),
-                              title: Text(friend['user_name'] ?? 'Unknown'),
-                              subtitle:
-                                  Text(friend['user_email'] ?? 'No email'),
-                            );
-                          },
-                        ))
-            ],
-          ),
-          // Invites Tab
-          FutureBuilder<List<String>>(
-            future: fetchInvites(),
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: scheduleService.fetchSentInvite(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
-              } else {
+              } else if (snapshot.hasData && snapshot.data != null) {
+                final sentInvites = snapshot.data!;
+
                 return ListView.builder(
-                  itemCount: snapshot.data!.length,
+                  itemCount: sentInvites.length,
                   itemBuilder: (context, index) {
+                    final invite = sentInvites[index];
                     return ListTile(
-                      title: Text(snapshot.data![index]),
+                      leading: Icon(Icons.person, size: 30),
+                      title: Text(invite['user_name'] ?? 'Unknown'),
+                      subtitle: Text(invite['status'] ?? 'No status'),
                     );
                   },
                 );
+              } else {
+                return Center(child: Text('No invites found.'));
               }
+            },
+          ),
+
+          // Invites Tab
+          receiveInvites.isEmpty
+              ? Center(child: Text('No received invitations.'))
+              : ListView.builder(
+            itemCount: receiveInvites.length,
+            itemBuilder: (context, index) {
+              var invite = receiveInvites[index];
+              return ListTile(
+                title: Text('Friend ID: ${invite['user_name']}'),
+                subtitle: Text('Status: ${invite['status']}'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.check, color: Colors.green),
+                      onPressed: () =>
+                          _responseToInvite(invite['user_id'], 'accept'),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.red),
+                      onPressed: () =>
+                          _responseToInvite(invite['user_id'], 'reject'),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ],
