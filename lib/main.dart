@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       title: 'Task Management',
       theme: ThemeData(
         primarySwatch: Colors.amber,
-        fontFamily: 'FredokaSemiBold',
+        fontFamily: 'FredokaRegular',
       ),
       home: LoginScreen(),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
+import 'package:task_management/screens/invited_screen.dart';
 
 class MembersScreen extends StatefulWidget {
   @override
@@ -142,9 +143,34 @@ class _MemberScreenState extends State<MembersScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50.0),
+        preferredSize: Size.fromHeight(90.0),
         child: AppBar(
-          title: null,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                onPressed: () => InvitedScreen(),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(80, 35),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  backgroundColor: Color(0xff637899),
+                  foregroundColor: Color(0xffddf2ff),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  elevation: 0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_circle_outline_rounded, color: Color(0xffddf2ff),),
+                    SizedBox(width: 8),
+                    Text("Invite Member"),
+                  ],
+                ),
+              )
+            ],
+          ),
           bottom: TabBar(
             controller: _tabController,
             tabs: [
@@ -296,7 +322,7 @@ class _MemberScreenState extends State<MembersScreen>
             itemBuilder: (context, index) {
               final invite = sentInvites[index];
               return ListTile(
-                  leading: Icon(Icons.account_circle, size: 40),
+                  leading: Icon(Icons.account_circle, size: 50),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -342,7 +368,7 @@ class _MemberScreenState extends State<MembersScreen>
               return ListTile(
                   leading: Icon(
                     Icons.account_circle,
-                    size: 40,
+                    size: 50,
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -360,7 +386,7 @@ class _MemberScreenState extends State<MembersScreen>
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Status: ${invite['status']}'),
+                      Text('${invite['user_email']}'),
                       Row(mainAxisSize: MainAxisSize.min, children: [
                         ElevatedButton(
                           onPressed: () =>
@@ -431,7 +457,7 @@ class _MemberScreenState extends State<MembersScreen>
             itemBuilder: (context, index) {
               final invite = sentTask[index];
               return ListTile(
-                  leading: Icon(Icons.account_circle, size: 40),
+                  leading: Icon(Icons.account_circle, size: 50),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -477,12 +503,12 @@ class _MemberScreenState extends State<MembersScreen>
               return ListTile(
                   leading: Icon(
                     Icons.account_circle,
-                    size: 40,
+                    size: 50,
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Friend ID: ${invite['user_name']}'),
+                      Text('${invite['user_name']}'),
                       Text(
                         formatTimeAgo(invite['created_at']),
                         style: TextStyle(

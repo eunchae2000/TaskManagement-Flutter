@@ -75,6 +75,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             (notification) => notification['notifications_type'] == 'friends')
         .toList();
 
+    if (taskNotifications.isEmpty && friendNotifications.isEmpty) {
+      return const Center(
+        child: Text(
+          'No notifications available',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
     return ListView(
       children: [
         _buildNotificationSection(
@@ -111,6 +120,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         .where(
             (notification) => notification['notifications_status'] == 'unread')
         .length;
+
+    if (notifications.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'No $title notifications available',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
+
 
     final displayedNotifications =
         showFullList ? notifications : notifications.take(3).toList();
@@ -183,7 +213,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ? Icons.task_alt_rounded
             : Icons.account_circle_rounded,
         color: Color(0xffff4700),
-        size: 30,
+        size: 50,
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
