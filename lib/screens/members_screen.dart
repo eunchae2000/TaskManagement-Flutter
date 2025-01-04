@@ -15,7 +15,6 @@ class _MemberScreenState extends State<MembersScreen>
   List<Map<String, dynamic>> sentTask = [];
   List<Map<String, dynamic>> receiveTask = [];
 
-
   bool isSentTab = true;
 
   final ScheduleService scheduleService = ScheduleService();
@@ -62,8 +61,10 @@ class _MemberScreenState extends State<MembersScreen>
         sentInvites = invites;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      }
     }
   }
 
@@ -75,8 +76,10 @@ class _MemberScreenState extends State<MembersScreen>
         receiveInvites = invites;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      }
     }
   }
 
@@ -85,44 +88,53 @@ class _MemberScreenState extends State<MembersScreen>
       await scheduleService.respondToInvite(friendId, response);
       _loadReceivedInvites();
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      }
     }
   }
 
   Future<void> _loadSentTask() async {
     try {
       List<Map<String, dynamic>> invites =
-      await scheduleService.fetchSentTask();
+          await scheduleService.fetchSentTask();
       setState(() {
         sentTask = invites;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      }
     }
   }
 
   Future<void> _loadReceivedTask() async {
     try {
       List<Map<String, dynamic>> invites =
-      await scheduleService.fetchReceivedTask();
+          await scheduleService.fetchReceivedTask();
       setState(() {
         receiveTask = invites;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      }
     }
   }
 
-  Future<void> _responseToTask(int friendId, int taskId, String response) async {
+  Future<void> _responseToTask(
+      int friendId, int taskId, String response) async {
     try {
       await scheduleService.respondToTask(friendId, taskId, response);
       _loadReceivedTask();
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
+      }
     }
   }
 
@@ -226,7 +238,7 @@ class _MemberScreenState extends State<MembersScreen>
                       },
                       style: TextButton.styleFrom(
                         backgroundColor:
-                        isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
+                            isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -250,7 +262,7 @@ class _MemberScreenState extends State<MembersScreen>
                       },
                       style: TextButton.styleFrom(
                         backgroundColor:
-                        !isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
+                            !isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -267,8 +279,7 @@ class _MemberScreenState extends State<MembersScreen>
                 ),
               ),
               Expanded(
-                child:
-                isSentTab ? _buildSentTask() : _buildReceivedTask(),
+                child: isSentTab ? _buildSentTask() : _buildReceivedTask(),
               ),
             ],
           ),
@@ -411,139 +422,144 @@ class _MemberScreenState extends State<MembersScreen>
             },
           );
   }
+
   Widget _buildSentTask() {
     return sentTask.isEmpty
         ? Center(child: Text('No sent Task invitations.'))
         : ListView.builder(
-      itemCount: sentTask.length,
-      itemBuilder: (context, index) {
-        final invite = sentTask[index];
-        return ListTile(
-            leading: Icon(Icons.account_circle, size: 40),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(invite['user_name'] ?? 'Unknown'),
-                Text(
-                  formatTimeAgo(invite['created_at']),
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w100,
-                      color: Color(0xff686868)),
-                )
-              ],
-            ),
-            subtitle: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(invite['user_email']),
-                  Container(
-                    padding: EdgeInsets.only(
-                        left: 7, right: 7, top: 3, bottom: 3),
-                    decoration: BoxDecoration(
-                      color: Color(0xffd9d9d9),
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Text(
-                      invite['status'] ?? 'No status',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  )
-                ]));
-      },
-    );
+            itemCount: sentTask.length,
+            itemBuilder: (context, index) {
+              final invite = sentTask[index];
+              return ListTile(
+                  leading: Icon(Icons.account_circle, size: 40),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(invite['user_name'] ?? 'Unknown'),
+                      Text(
+                        formatTimeAgo(invite['created_at']),
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w100,
+                            color: Color(0xff686868)),
+                      )
+                    ],
+                  ),
+                  subtitle: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(invite['user_email']),
+                        Container(
+                          padding: EdgeInsets.only(
+                              left: 7, right: 7, top: 3, bottom: 3),
+                          decoration: BoxDecoration(
+                            color: Color(0xffd9d9d9),
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Text(
+                            invite['status'] ?? 'No status',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        )
+                      ]));
+            },
+          );
   }
 
   Widget _buildReceivedTask() {
     return receiveTask.isEmpty
         ? Center(child: Text('No received Task invitations.'))
         : ListView.builder(
-      itemCount: receiveTask.length,
-      itemBuilder: (context, index) {
-        var invite = receiveTask[index];
-        return ListTile(
-            leading: Icon(
-              Icons.account_circle,
-              size: 40,
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Friend ID: ${invite['user_name']}'),
-                Text(
-                  formatTimeAgo(invite['created_at']),
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w100,
-                      color: Color(0xff686868)),
-                )
-              ],
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Task title: ${invite['task_title']}'),
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  ElevatedButton(
-                    onPressed: () =>
-                        _responseToTask(invite['user_user_id'], invite['task_task_id'], 'accept'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(80, 35),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side:
-                        BorderSide(color: Colors.black12, width: 1.5),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.check_rounded,
-                          color: Colors.green,
+            itemCount: receiveTask.length,
+            itemBuilder: (context, index) {
+              var invite = receiveTask[index];
+              return ListTile(
+                  leading: Icon(
+                    Icons.account_circle,
+                    size: 40,
+                  ),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Friend ID: ${invite['user_name']}'),
+                      Text(
+                        formatTimeAgo(invite['created_at']),
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w100,
+                            color: Color(0xff686868)),
+                      )
+                    ],
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Task title: ${invite['task_title']}'),
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        ElevatedButton(
+                          onPressed: () => _responseToTask(
+                              invite['user_user_id'],
+                              invite['task_task_id'],
+                              'accept'),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(80, 35),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side:
+                                  BorderSide(color: Colors.black12, width: 1.5),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_rounded,
+                                color: Colors.green,
+                              ),
+                              SizedBox(width: 8),
+                              Text("Accept"),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 8),
-                        Text("Accept"),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  ElevatedButton(
-                    onPressed: () =>
-                        _responseToTask(invite['user_user_id'], invite['task_task_id'], 'reject'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(80, 35),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side:
-                        BorderSide(color: Colors.black12, width: 1.5),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.close_rounded, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text("Reject"),
-                      ],
-                    ),
-                  ),
-                ]),
-              ],
-            ));
-      },
-    );
+                        SizedBox(width: 20),
+                        ElevatedButton(
+                          onPressed: () => _responseToTask(
+                              invite['user_user_id'],
+                              invite['task_task_id'],
+                              'reject'),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(80, 35),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side:
+                                  BorderSide(color: Colors.black12, width: 1.5),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.close_rounded, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text("Reject"),
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ));
+            },
+          );
   }
 }
 

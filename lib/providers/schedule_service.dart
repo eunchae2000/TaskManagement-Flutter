@@ -324,7 +324,6 @@ class ScheduleService {
       final response = await http.get(
         Uri.parse('$baseUrl/sentRequest/$userId'),
       );
-      print(response.body);
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
@@ -437,16 +436,13 @@ class ScheduleService {
   Future<List<Map<String, dynamic>>> fetchReceivedTask() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
-    print(userId);
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/receiveTask/$userId'),
       );
-      print(response.body);
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
-        print(responseBody);
         if (responseBody is List &&
             responseBody.isNotEmpty &&
             responseBody[0] is List) {
