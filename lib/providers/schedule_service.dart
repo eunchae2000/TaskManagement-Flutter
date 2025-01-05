@@ -250,7 +250,6 @@ class ScheduleService {
   Future<List<Map<String, dynamic>>> searchFriends(String query) async {
     final response =
         await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
-
     if (response.statusCode == 200) {
       List<Map<String, dynamic>> friends =
           List<Map<String, dynamic>>.from(json.decode(response.body));
@@ -289,6 +288,23 @@ class ScheduleService {
       }
     } catch (e) {
       throw Exception('Error fetching notifications');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchSearchEmail(String email) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/search-member'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'email': email, 'user_id': userId}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch email search results');
     }
   }
 

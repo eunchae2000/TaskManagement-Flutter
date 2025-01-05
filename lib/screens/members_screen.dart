@@ -142,45 +142,56 @@ class _MemberScreenState extends State<MembersScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(90.0),
-        child: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                onPressed: () => InvitedScreen(),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(80, 35),
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  backgroundColor: Color(0xff637899),
-                  foregroundColor: Color(0xffddf2ff),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => InvitedScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(80, 35),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                backgroundColor: Color(0xff637899),
+                foregroundColor: Color(0xffddf2ff),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.add_circle_outline_rounded,
+                    color: Color(0xffddf2ff),
                   ),
-                  elevation: 0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_circle_outline_rounded, color: Color(0xffddf2ff),),
-                    SizedBox(width: 8),
-                    Text("Invite Member"),
-                  ],
-                ),
-              )
-            ],
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(text: 'Members'),
-              Tab(text: 'Project'),
-            ],
-            indicatorColor: Color(0xffff4700),
-            labelColor: Color(0xffff4700),
-            unselectedLabelColor: Color(0xff637899),
-          ),
+                  SizedBox(width: 8),
+                  Text("Invite Member"),
+                ],
+              ),
+            )
+          ],
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: 'Members'),
+            Tab(text: 'Project'),
+          ],
+          indicatorColor: Color(0xffff4700),
+          labelColor: Color(0xffff4700),
+          unselectedLabelColor: Color(0xff637899),
         ),
       ),
       body: TabBarView(
@@ -322,7 +333,11 @@ class _MemberScreenState extends State<MembersScreen>
             itemBuilder: (context, index) {
               final invite = sentInvites[index];
               return ListTile(
-                  leading: Icon(Icons.account_circle, size: 50),
+                  leading: Icon(
+                    Icons.account_circle,
+                    size: 50,
+                    color: Color(0xff637899),
+                  ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -369,6 +384,7 @@ class _MemberScreenState extends State<MembersScreen>
                   leading: Icon(
                     Icons.account_circle,
                     size: 50,
+                    color: Color(0xff637899),
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -395,12 +411,10 @@ class _MemberScreenState extends State<MembersScreen>
                             minimumSize: Size(80, 35),
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
-                            backgroundColor: Colors.white,
+                            backgroundColor: Color(0xffddf2ff),
                             foregroundColor: Colors.black87,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side:
-                                  BorderSide(color: Colors.black12, width: 1.5),
                             ),
                             elevation: 0,
                           ),
@@ -412,7 +426,10 @@ class _MemberScreenState extends State<MembersScreen>
                                 color: Colors.green,
                               ),
                               SizedBox(width: 8),
-                              Text("Accept"),
+                              Text(
+                                "Accept",
+                                style: TextStyle(fontSize: 13),
+                              ),
                             ],
                           ),
                         ),
@@ -428,8 +445,8 @@ class _MemberScreenState extends State<MembersScreen>
                             foregroundColor: Colors.black87,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side:
-                                  BorderSide(color: Colors.black12, width: 1.5),
+                              side: BorderSide(
+                                  color: Color(0xffddf2ff), width: 1.5),
                             ),
                             elevation: 0,
                           ),
@@ -438,7 +455,10 @@ class _MemberScreenState extends State<MembersScreen>
                             children: [
                               Icon(Icons.close_rounded, color: Colors.red),
                               SizedBox(width: 8),
-                              Text("Reject"),
+                              Text(
+                                "Reject",
+                                style: TextStyle(fontSize: 13),
+                              ),
                             ],
                           ),
                         ),
@@ -457,7 +477,11 @@ class _MemberScreenState extends State<MembersScreen>
             itemBuilder: (context, index) {
               final invite = sentTask[index];
               return ListTile(
-                  leading: Icon(Icons.account_circle, size: 50),
+                  leading: Icon(
+                    Icons.account_circle,
+                    size: 50,
+                    color: Color(0xff637899),
+                  ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -477,9 +501,9 @@ class _MemberScreenState extends State<MembersScreen>
                         Text(invite['user_email']),
                         Container(
                           padding: EdgeInsets.only(
-                              left: 7, right: 7, top: 3, bottom: 3),
+                              left: 10, right: 10, top: 3, bottom: 3),
                           decoration: BoxDecoration(
-                            color: Color(0xffd9d9d9),
+                            color: Color(0xffddf2ff),
                             shape: BoxShape.rectangle,
                             borderRadius: BorderRadius.circular(15),
                           ),
@@ -504,6 +528,7 @@ class _MemberScreenState extends State<MembersScreen>
                   leading: Icon(
                     Icons.account_circle,
                     size: 50,
+                    color: Color(0xff637899),
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -532,12 +557,10 @@ class _MemberScreenState extends State<MembersScreen>
                             minimumSize: Size(80, 35),
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
-                            backgroundColor: Colors.white,
+                            backgroundColor: Color(0xffddf2ff),
                             foregroundColor: Colors.black87,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side:
-                                  BorderSide(color: Colors.black12, width: 1.5),
                             ),
                             elevation: 0,
                           ),
@@ -549,7 +572,10 @@ class _MemberScreenState extends State<MembersScreen>
                                 color: Colors.green,
                               ),
                               SizedBox(width: 8),
-                              Text("Accept"),
+                              Text(
+                                "Accept",
+                                style: TextStyle(fontSize: 13),
+                              ),
                             ],
                           ),
                         ),
@@ -567,8 +593,8 @@ class _MemberScreenState extends State<MembersScreen>
                             foregroundColor: Colors.black87,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side:
-                                  BorderSide(color: Colors.black12, width: 1.5),
+                              side: BorderSide(
+                                  color: Color(0xffddf2ff), width: 1.5),
                             ),
                             elevation: 0,
                           ),
@@ -577,7 +603,10 @@ class _MemberScreenState extends State<MembersScreen>
                             children: [
                               Icon(Icons.close_rounded, color: Colors.red),
                               SizedBox(width: 8),
-                              Text("Reject"),
+                              Text(
+                                "Reject",
+                                style: TextStyle(fontSize: 13),
+                              ),
                             ],
                           ),
                         ),
