@@ -14,7 +14,7 @@ class _InvitedScreenState extends State<InvitedScreen> {
   bool isSentTab = true;
 
   String _message = '';
-  Map<String, String> _requestStatusMap = {};
+  final Map<String, String> _requestStatusMap = {};
   List<dynamic> status = [];
 
   void _searchEmail() async {
@@ -31,10 +31,10 @@ class _InvitedScreenState extends State<InvitedScreen> {
       setState(() {
         _searchResults = response['data'];
         _message = '';
-        status = (response['existing'] is List && response['existing']!.isNotEmpty)
-            ? response['existing']
-            : [];
-
+        status =
+            (response['existing'] is List && response['existing']!.isNotEmpty)
+                ? response['existing']
+                : [];
       });
     } else {
       setState(() {
@@ -53,7 +53,7 @@ class _InvitedScreenState extends State<InvitedScreen> {
     }
 
     final emailRegex =
-    RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+        RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
     if (!emailRegex.hasMatch(email)) {
       setState(() {
         _message = 'The email format is invalid. Please check and try again.';
@@ -66,11 +66,9 @@ class _InvitedScreenState extends State<InvitedScreen> {
     if (response['success'] == true) {
       setState(() {
         _message = 'Friend request sent successfully!';
-        print(_requestStatusMap[email]);
-        if(_requestStatusMap[email] == ''){
+        if (_requestStatusMap[email] == '') {
           _requestStatusMap[email] = 'sent';
         }
-
       });
     } else {
       setState(() {
@@ -192,7 +190,7 @@ class _InvitedScreenState extends State<InvitedScreen> {
           TextField(
             controller: _emailController,
             decoration: customInputDecoration(
-                labelText: 'Enter User Email', hintText: 'Enter User Email'),
+                 hintText: 'Enter User Email'),
             keyboardType: TextInputType.emailAddress,
           ),
           SizedBox(height: 20),
@@ -226,26 +224,24 @@ class _InvitedScreenState extends State<InvitedScreen> {
           ),
           SizedBox(height: 20),
           if (_searchResults.isNotEmpty) ...[
-            Container(
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.list_rounded,
-                    size: 35,
+            Row(
+              children: [
+                Icon(
+                  Icons.list_rounded,
+                  size: 35,
+                  color: Color(0xff637899),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  'List',
+                  style: TextStyle(
+                    fontSize: 20,
                     color: Color(0xff637899),
                   ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    'List',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Color(0xff637899),
-                    ),
-                  )
-                ],
-              ),
+                )
+              ],
             ),
             SizedBox(height: 10),
             Expanded(
@@ -253,37 +249,45 @@ class _InvitedScreenState extends State<InvitedScreen> {
                 itemCount: _searchResults.length,
                 itemBuilder: (context, index) {
                   final email = _searchResults[index]['user_email'] ?? '';
-                  final _requestStatus = (status.isNotEmpty && index < status.length)
-                      ? status[index]['status'] ?? ''
-                      : '';
+                  final requestStatus =
+                      (status.isNotEmpty && index < status.length)
+                          ? status[index]['status'] ?? ''
+                          : '';
 
                   return ListTile(
-                    contentPadding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                     leading: Icon(
                       Icons.account_circle_rounded,
-                      size: 35,
+                      size: 40,
                       color: Color(0xff637899),
                     ),
                     title: Text(
                       email,
                       style: TextStyle(fontSize: 15),
                     ),
+                    subtitle: Text(
+                      _searchResults[index]['user_name']
+                    ),
                     trailing: SizedBox(
                       width: 90,
                       height: 30,
                       child: ElevatedButton(
-                        onPressed: _requestStatus == 'sent' || _requestStatus == 'pending'
+                        onPressed: requestStatus == 'sent' ||
+                                requestStatus == 'pending'
                             ? null
                             : () {
-                          _sendRequest(email);
-                        },
+                                _sendRequest(email);
+                              },
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: EdgeInsets.zero,
-                          backgroundColor: _requestStatus == 'sent' || _requestStatus == 'pending'
+                          backgroundColor: requestStatus == 'sent' ||
+                                  requestStatus == 'pending'
                               ? Colors.grey
                               : Color(0xffff4700),
-                          foregroundColor: _requestStatus == 'sent' || _requestStatus == 'pending'
+                          foregroundColor: requestStatus == 'sent' ||
+                                  requestStatus == 'pending'
                               ? Color(0xffff4700)
                               : Color(0xffffe7d6),
                         ),
@@ -291,35 +295,37 @@ class _InvitedScreenState extends State<InvitedScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _requestStatus == 'sent' || _requestStatus == 'pending'
+                              requestStatus == 'sent' ||
+                                      requestStatus == 'pending'
                                   ? 'sent'
                                   : 'send',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: _requestStatus == 'sent' || _requestStatus == 'pending'
+                                color: requestStatus == 'sent' ||
+                                        requestStatus == 'pending'
                                     ? Colors.grey
                                     : Color(0xffffe7d6),
                               ),
                             ),
                             SizedBox(width: 5),
                             Icon(
-                              _requestStatus == 'sent' || _requestStatus == 'pending'
+                              requestStatus == 'sent' ||
+                                      requestStatus == 'pending'
                                   ? Icons.pending_rounded
                                   : Icons.send_rounded,
-                              color: _requestStatus == 'sent' || _requestStatus == 'pending'
+                              color: requestStatus == 'sent' ||
+                                      requestStatus == 'pending'
                                   ? Colors.grey
                                   : Color(0xffffe7d6),
                             ),
                           ],
                         ),
                       ),
-
                     ),
                   );
                 },
               ),
             ),
-
           ] else if (_message.isNotEmpty) ...[
             Text(
               _message,
@@ -338,8 +344,7 @@ class _InvitedScreenState extends State<InvitedScreen> {
         children: [
           TextField(
             controller: _emailController,
-            decoration: customInputDecoration(
-                labelText: 'Enter Friend ID', hintText: 'Enter Friend ID'),
+            decoration: customInputDecoration( hintText: 'Enter Friend ID'),
             keyboardType: TextInputType.number,
           ),
           SizedBox(height: 20),
@@ -359,12 +364,10 @@ class _InvitedScreenState extends State<InvitedScreen> {
 }
 
 InputDecoration customInputDecoration({
-  required String labelText,
   required String hintText,
   Widget? suffixIcon,
 }) {
   return InputDecoration(
-    labelText: labelText,
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,
