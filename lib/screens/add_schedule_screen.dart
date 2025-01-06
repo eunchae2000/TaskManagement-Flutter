@@ -18,9 +18,17 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController endTimeController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  final TextEditingController planStartTimeController = TextEditingController();
+  final TextEditingController planEndTimeController = TextEditingController();
 
-  List<Map<String, TextEditingController>> _plans = [];
+  DateTime _selectedDate = DateTime.now();
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+
+  TimeOfDay? _planStartTime;
+  TimeOfDay? _planEndTime;
+
+  final List<Map<String, TextEditingController>> _plans = [];
 
   final ScheduleService scheduleService = ScheduleService();
 
@@ -32,6 +40,9 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   int? selectedCategoryId;
   String? selectedCategoryName;
 
+  DateTime get _startOfWeek =>
+      _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
+
   @override
   void initState() {
     super.initState();
@@ -39,23 +50,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     _loadFriends();
     _addNewPlan();
   }
-
-  void _addNewPlan() {
-    setState(() {
-      _plans.add({
-        'plan_detail': TextEditingController(),
-        'plan_startTime': TextEditingController(),
-        'plan_endTime': TextEditingController(),
-      });
-    });
-  }
-
-  void _removePlan(int index) {
-    setState(() {
-      _plans.removeAt(index);
-    });
-  }
-
 
   Future<void> _loadFriends() async {
     try {
@@ -86,14 +80,21 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     }
   }
 
-  List<Map<String, dynamic>> schedules = [];
-  final TextEditingController _eventController = TextEditingController();
+  void _addNewPlan() {
+    setState(() {
+      _plans.add({
+        'plan_detail': TextEditingController(),
+        'plan_startTime': TextEditingController(),
+        'plan_endTime': TextEditingController(),
+      });
+    });
+  }
 
-  TimeOfDay? _startTime;
-  TimeOfDay? _endTime;
-
-  DateTime get _startOfWeek =>
-      _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
+  void _removePlan(int index) {
+    setState(() {
+      _plans.removeAt(index);
+    });
+  }
 
   void _previousWeek() {
     setState(() {
@@ -135,73 +136,102 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     return '${date.year}-${date.month}-${date.day}';
   }
 
-  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
-    TimeOfDay initialTime = isStartTime
-        ? (_startTime ?? TimeOfDay.now())
-        : (_endTime ?? TimeOfDay.now());
+  void _selectTime(BuildContext context, bool isStartTime, int index) async {
+    TimeOfDay initialTime = TimeOfDay.now();
+    TimeOfDay? currentStartTime;
+    TimeOfDay? currentEndTime;
+
+    if (index == 0) {
+      currentStartTime = isStartTime ? _startTime : _endTime;
+    } else if (index == 1) {
+      currentStartTime = isStartTime ? _planStartTime : _planEndTime;
+    }
+
+    TimeOfDay initialSelectedTime = isStartTime
+        ? (currentStartTime ?? initialTime)
+        : (currentEndTime ?? initialTime);
 
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: initialTime,
+      initialTime: initialSelectedTime,
     );
 
     if (pickedTime != null) {
       setState(() {
         if (isStartTime) {
-          _startTime = pickedTime;
+          if (index == 0) {
+            startTimeController.text = pickedTime.format(context);
+          } else if (index == 1) {
+            planStartTimeController.text = pickedTime.format(context);
+          }
         } else {
-          _endTime = pickedTime;
+          if (index == 0) {
+            endTimeController.text = pickedTime.format(context);
+          } else if (index == 1) {
+            planEndTimeController.text = pickedTime.format(context);
+          }
         }
       });
     }
   }
 
-  TextEditingController searchController = TextEditingController();
-  TextEditingController textFieldController = TextEditingController();
-
   Future<void> _addTask() async {
-    final selectedFriends =
+    if (!_validateInputs()) return;
+    final selectedFriendsNames =
         selectFriends.map((friend) => friend['user_name'] as String).toList();
 
-    if (titleController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        _startTime == null ||
-        _endTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please complete all fields')),
-      );
-      return;
-    }
-    List<Map<String, String>> plans = _plans
+    final plans = _plans
         .map((plan) => {
-      'plan_detail': plan['plan_detail']!.text.trim(),
-      'plan_startTime': plan['plan_startTime']!.text.trim(),
-      'plan_endTime': plan['plan_endTime']!.text.trim(),
-    })
+              'plan_detail': plan['plan_detail']!.text.trim(),
+              'plan_startTime': plan['plan_startTime']!.text.trim(),
+              'plan_endTime': plan['plan_endTime']!.text.trim(),
+            })
         .toList();
 
     final result = await scheduleService.addTask(
-      selectedFriends,
+      selectedFriendsNames,
       titleController.text,
       descriptionController.text,
       _startTime!.format(context),
       _endTime!.format(context),
-      getFormattedDate(_selectedDate),
+      _selectedDate.toIso8601String(),
       selectedCategoryId ?? 1,
       plans,
     );
+
     if (mounted) {
       if (result['success']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('success: $_selectedDate.month')),
-        );
+        _showSnackBar('Task added successfully');
         Navigator.pop(context);
-        _eventController.clear();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${result['message']}')),
-        );
+        _showSnackBar('Error: ${result['message']}');
       }
+    }
+  }
+
+  bool _validateInputs() {
+    if (titleController.text.isEmpty ||
+        descriptionController.text.isEmpty ||
+        _startTime == null ||
+        _endTime == null) {
+      _showSnackBar('Please complete all fields');
+      return false;
+    }
+
+    final startMinutes = _startTime!.hour * 60 + _startTime!.minute;
+    final endMinutes = _endTime!.hour * 60 + _endTime!.minute;
+
+    if (startMinutes >= endMinutes) {
+      _showSnackBar('End time must be after start time');
+      return false;
+    }
+    return true;
+  }
+
+  void _showSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -308,7 +338,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
             TextField(
               controller: titleController,
               decoration: customInputDecoration(
-                labelText: 'Task Title',
                 hintText: 'Enter title for the Task',
               ),
             ),
@@ -316,7 +345,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
             TextField(
               controller: descriptionController,
               decoration: customInputDecoration(
-                labelText: 'Description',
                 hintText: 'Enter Task description',
               ),
               maxLines: 5,
@@ -363,32 +391,30 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                     readOnly: true,
                     controller: startTimeController,
                     decoration: customInputDecoration(
-                      labelText: 'Start Time',
                       hintText: _startTime == null
                           ? 'Select Start Time'
                           : _startTime!.format(context),
                       suffixIcon: Icon(Icons.access_time),
                     ),
-                    onTap: () => _selectTime(context, true),
+                    onTap: () => _selectTime(
+                        context, true, 0),
                   ),
                 ),
                 SizedBox(width: 20),
                 Icon(Icons.arrow_forward_sharp),
-                SizedBox(
-                  width: 20,
-                ),
+                SizedBox(width: 20),
                 Expanded(
                   child: TextField(
                     readOnly: true,
                     controller: endTimeController,
                     decoration: customInputDecoration(
-                      labelText: 'End Time',
                       hintText: _endTime == null
                           ? 'Select End Time'
                           : _endTime!.format(context),
                       suffixIcon: Icon(Icons.access_time),
                     ),
-                    onTap: () => _selectTime(context, false),
+                    onTap: () => _selectTime(
+                        context, false, 0),
                   ),
                 ),
               ],
@@ -399,73 +425,75 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               physics: NeverScrollableScrollPhysics(),
               itemCount: _plans.length,
               itemBuilder: (context, index) {
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _plans[index]['plan_detail'],
+                      decoration:
+                          customInputDecoration(hintText: "Plan Detail"),
+                    ),
+                    SizedBox(height: 5),
+                    Row(
                       children: [
-                        TextField(
-                          controller: _plans[index]['plan_detail'],
-                          decoration: InputDecoration(labelText: "Plan Detail"),
+                        _buildTimeField(
+                          context: context,
+                          controller: _plans[index]['plan_startTime'],
+                          hintText:
+                              _plans[index]['plan_startTime'] == null
+                                  ? 'Select Start Time'
+                                  : planStartTimeController.text ,
+                          isStartTime: true,
+                          onTap: () => _selectTime(context, true,
+                              1),
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                readOnly: true,
-                                controller:  _plans[index]['plan_startTime'],
-                                decoration: customInputDecoration(
-                                  labelText: 'Start Time',
-                                  hintText: _startTime == null
-                                      ? 'Select Start Time'
-                                      : _startTime!.format(context),
-                                  suffixIcon: Icon(Icons.access_time),
-                                ),
-                                onTap: () => _selectTime(context, true),
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            Icon(Icons.arrow_forward_sharp),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Expanded(
-                              child: TextField(
-                                readOnly: true,
-                                controller: _plans[index]['plan_endTime'],
-                                decoration: customInputDecoration(
-                                  labelText: 'End Time',
-                                  hintText: _endTime == null
-                                      ? 'Select End Time'
-                                      : _endTime!.format(context),
-                                  suffixIcon: Icon(Icons.access_time),
-                                ),
-                                onTap: () => _selectTime(context, false),
-                              ),
-                            ),
-                          ],
+                        SizedBox(width: 20),
+                        Icon(Icons.arrow_forward_sharp),
+                        SizedBox(width: 20),
+                        _buildTimeField(
+                          context: context,
+                          controller: _plans[index]['plan_endTime'],
+                          hintText:
+                              _plans[index]['plan_endTime'] ==
+                                      null
+                                  ? 'Select End Time'
+                                  : planEndTimeController.text,
+                          isStartTime: false,
+                          onTap: () => _selectTime(context, false,
+                              1),
                         ),
-                        if (_plans.length > 1)
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () => _removePlan(index),
-                            ),
-                          ),
                       ],
                     ),
-                  ),
+                    if (_plans.length > 1)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => _removePlan(index),
+                        ),
+                      ),
+                  ],
                 );
               },
             ),
-            SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
+            SizedBox(height: 5),
+            Container(
+              width: double.infinity,
+              child: ElevatedButton(
                 onPressed: _addNewPlan,
-                child: Text("+ Add Plan"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xffd9d9d9),
+                  foregroundColor: Color(0xffa3a3a3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  elevation: 0,
+                ),
+                child: Icon(
+                  Icons.add_rounded,
+                  size: 40,
+                  color: Color(0xfff5f5f5),
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -565,15 +593,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                     ),
                   );
 
-                  if (_startTime == null || _endTime == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text('Please select both start and end times!')),
-                    );
-                    return;
-                  }
-
                   final startTimeInMinutes =
                       _startTime!.hour * 60 + _startTime!.minute;
                   final endTimeInMinutes =
@@ -612,13 +631,31 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   }
 }
 
+Expanded _buildTimeField({
+  required BuildContext context,
+  required TextEditingController? controller,
+  required String hintText,
+  required bool isStartTime,
+  required Function onTap,
+}) {
+  return Expanded(
+    child: TextField(
+      readOnly: true,
+      controller: controller,
+      decoration: customInputDecoration(
+        hintText: hintText,
+        suffixIcon: Icon(Icons.access_time),
+      ),
+      onTap: () => onTap(),
+    ),
+  );
+}
+
 InputDecoration customInputDecoration({
-  required String labelText,
   required String hintText,
   Widget? suffixIcon,
 }) {
   return InputDecoration(
-    labelText: labelText,
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,

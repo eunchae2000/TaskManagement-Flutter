@@ -204,10 +204,12 @@ class ScheduleService {
         'Content-Type': 'application/json',
       },
     );
+    print(response.body);
 
     if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((item) => item['user_name'].toString()).toList();
+      Map<String, dynamic> responseData = json.decode(response.body);
+      List<dynamic> participants = responseData['data'];
+      return participants.map((item) => item['user_name'].toString()).toList();
     } else {
       throw Exception('Failed to load participants');
     }
@@ -521,7 +523,6 @@ class ScheduleService {
         'task_dateTime': today,
       }),
     );
-    print(response.body);
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
 
