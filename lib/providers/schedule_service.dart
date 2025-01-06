@@ -204,7 +204,6 @@ class ScheduleService {
         'Content-Type': 'application/json',
       },
     );
-    print(response.body);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = json.decode(response.body);
