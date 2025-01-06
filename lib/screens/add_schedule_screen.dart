@@ -20,6 +20,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final TextEditingController endTimeController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
 
+  List<Map<String, TextEditingController>> _plans = [];
+
   final ScheduleService scheduleService = ScheduleService();
 
   List<Map<String, dynamic>> friends = [];
@@ -35,7 +37,25 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     super.initState();
     _loadCategories();
     _loadFriends();
+    _addNewPlan();
   }
+
+  void _addNewPlan() {
+    setState(() {
+      _plans.add({
+        'plan_detail': TextEditingController(),
+        'plan_startTime': TextEditingController(),
+        'plan_endTime': TextEditingController(),
+      });
+    });
+  }
+
+  void _removePlan(int index) {
+    setState(() {
+      _plans.removeAt(index);
+    });
+  }
+
 
   Future<void> _loadFriends() async {
     try {
@@ -152,6 +172,13 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       );
       return;
     }
+    List<Map<String, String>> plans = _plans
+        .map((plan) => {
+      'plan_detail': plan['plan_detail']!.text.trim(),
+      'plan_startTime': plan['plan_startTime']!.text.trim(),
+      'plan_endTime': plan['plan_endTime']!.text.trim(),
+    })
+        .toList();
 
     final result = await scheduleService.addTask(
       selectedFriends,
@@ -161,6 +188,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       _endTime!.format(context),
       getFormattedDate(_selectedDate),
       selectedCategoryId ?? 1,
+      plans,
     );
     if (mounted) {
       if (result['success']) {
@@ -364,6 +392,81 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   ),
                 ),
               ],
+            ),
+            SizedBox(height: 20),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: _plans.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: _plans[index]['plan_detail'],
+                          decoration: InputDecoration(labelText: "Plan Detail"),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                readOnly: true,
+                                controller:  _plans[index]['plan_startTime'],
+                                decoration: customInputDecoration(
+                                  labelText: 'Start Time',
+                                  hintText: _startTime == null
+                                      ? 'Select Start Time'
+                                      : _startTime!.format(context),
+                                  suffixIcon: Icon(Icons.access_time),
+                                ),
+                                onTap: () => _selectTime(context, true),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            Icon(Icons.arrow_forward_sharp),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Expanded(
+                              child: TextField(
+                                readOnly: true,
+                                controller: _plans[index]['plan_endTime'],
+                                decoration: customInputDecoration(
+                                  labelText: 'End Time',
+                                  hintText: _endTime == null
+                                      ? 'Select End Time'
+                                      : _endTime!.format(context),
+                                  suffixIcon: Icon(Icons.access_time),
+                                ),
+                                onTap: () => _selectTime(context, false),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (_plans.length > 1)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () => _removePlan(index),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _addNewPlan,
+                child: Text("+ Add Plan"),
+              ),
             ),
             SizedBox(height: 20),
             Container(
