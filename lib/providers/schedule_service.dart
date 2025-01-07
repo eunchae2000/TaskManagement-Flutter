@@ -178,6 +178,7 @@ class ScheduleService {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestData),
       );
+      print(response.body);
       if (response.statusCode == 201) {
         return {
           'success': true,

@@ -18,8 +18,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController endTimeController = TextEditingController();
-  final TextEditingController planStartTimeController = TextEditingController();
-  final TextEditingController planEndTimeController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   TimeOfDay? _startTime;
@@ -143,7 +141,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
 
     if (index == 0) {
       currentStartTime = isStartTime ? _startTime : _endTime;
-    } else if (index == 1) {
+    } else if (index == 1 && _plans.length > 1) {
       currentStartTime = isStartTime ? _planStartTime : _planEndTime;
     }
 
@@ -155,20 +153,21 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       context: context,
       initialTime: initialSelectedTime,
     );
+    print(pickedTime);
 
     if (pickedTime != null) {
       setState(() {
         if (isStartTime) {
           if (index == 0) {
-            startTimeController.text = pickedTime.format(context);
+            _startTime = pickedTime;
           } else if (index == 1) {
-            planStartTimeController.text = pickedTime.format(context);
+            _planStartTime = pickedTime;
           }
         } else {
           if (index == 0) {
-            endTimeController.text = pickedTime.format(context);
+            _endTime = pickedTime;
           } else if (index == 1) {
-            planEndTimeController.text = pickedTime.format(context);
+            _planEndTime = pickedTime;
           }
         }
       });
@@ -182,11 +181,13 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
 
     final plans = _plans
         .map((plan) => {
-              'plan_detail': plan['plan_detail']!.text.trim(),
-              'plan_startTime': plan['plan_startTime']!.text.trim(),
-              'plan_endTime': plan['plan_endTime']!.text.trim(),
+              'plan_detail': plan['plan_detail']!.text,
+              'plan_startTime':_planStartTime!.format(context),
+              'plan_endTime': _planEndTime!.format(context),
             })
         .toList();
+
+    print('${plans}');
 
     final result = await scheduleService.addTask(
       selectedFriendsNames,
@@ -194,7 +195,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       descriptionController.text,
       _startTime!.format(context),
       _endTime!.format(context),
-      _selectedDate.toIso8601String(),
+      getFormattedDate(_selectedDate),
       selectedCategoryId ?? 1,
       plans,
     );
@@ -210,10 +211,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   }
 
   bool _validateInputs() {
-    if (titleController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        _startTime == null ||
-        _endTime == null) {
+    if (titleController.text.isEmpty || descriptionController.text.isEmpty) {
       _showSnackBar('Please complete all fields');
       return false;
     }
@@ -396,8 +394,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                           : _startTime!.format(context),
                       suffixIcon: Icon(Icons.access_time),
                     ),
-                    onTap: () => _selectTime(
-                        context, true, 0),
+                    onTap: () => _selectTime(context, true, 0),
                   ),
                 ),
                 SizedBox(width: 20),
@@ -413,8 +410,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                           : _endTime!.format(context),
                       suffixIcon: Icon(Icons.access_time),
                     ),
-                    onTap: () => _selectTime(
-                        context, false, 0),
+                    onTap: () => _selectTime(context, false, 0),
                   ),
                 ),
               ],
@@ -439,13 +435,11 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                         _buildTimeField(
                           context: context,
                           controller: _plans[index]['plan_startTime'],
-                          hintText:
-                              _plans[index]['plan_startTime'] == null
-                                  ? 'Select Start Time'
-                                  : planStartTimeController.text ,
+                          hintText: _planStartTime == null
+                              ? 'Plan Start'
+                              : _planStartTime!.format(context),
                           isStartTime: true,
-                          onTap: () => _selectTime(context, true,
-                              1),
+                          onTap: () => _selectTime(context, true, 1),
                         ),
                         SizedBox(width: 20),
                         Icon(Icons.arrow_forward_sharp),
@@ -453,14 +447,11 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                         _buildTimeField(
                           context: context,
                           controller: _plans[index]['plan_endTime'],
-                          hintText:
-                              _plans[index]['plan_endTime'] ==
-                                      null
-                                  ? 'Select End Time'
-                                  : planEndTimeController.text,
+                          hintText: _planEndTime == null
+                              ? 'Plan End'
+                              : _planEndTime!.format(context),
                           isStartTime: false,
-                          onTap: () => _selectTime(context, false,
-                              1),
+                          onTap: () => _selectTime(context, false, 1),
                         ),
                       ],
                     ),
