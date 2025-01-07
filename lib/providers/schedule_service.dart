@@ -197,21 +197,17 @@ class ScheduleService {
     }
   }
 
-  Future<List<String>> getParticipant(int taskId) async {
+  Future<Map<String, dynamic>> getParticipant(int taskId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/task/$taskId/participants'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
     );
-    print(response.body);
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> responseData = json.decode(response.body);
-      List<dynamic> participants = responseData['data'];
-      return participants.map((item) => item['user_name'].toString()).toList();
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return responseData;
     } else {
-      throw Exception('Failed to load participants');
+      throw Exception('Failed to fetch participants and plans');
     }
   }
 

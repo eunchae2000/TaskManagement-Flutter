@@ -110,23 +110,24 @@ class _WeekCalendarState extends State<CalendarScreen> {
         getFormattedDate(_selectedDay),
       );
 
-      setState(() {
-        tasks = fetchedTasks;
-      });
+      final List<Map<String, dynamic>> updatedTasks = [];
 
-      for (var task in tasks) {
-        final participants =
-            await _scheduleService.getParticipant(task['task_id']);
-        task['members'] = participants;
+      for (var task in fetchedTasks) {
+        final participants = await _scheduleService.getParticipant(task['task_id']);
+        final members = (participants['result'] as List<dynamic>)
+            .map((item) => item['user_name'].toString())
+            .toList();
+        task['members'] = members;
+        updatedTasks.add(task);
       }
 
-      if (!mounted) return;
+      setState(() {
+        tasks = updatedTasks;
+      });
 
       if (tasks.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('No tasks found for the selected category and date')),
+          SnackBar(content: Text('No tasks found for the selected category and date')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -139,6 +140,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -243,8 +245,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              MembersScreen(),
+                          builder: (context) => MembersScreen(),
                         ),
                       );
                     },
@@ -502,39 +503,35 @@ Widget _memberAvatars(List<String> members) {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          ...displayMembers
-              .asMap()
-              .map((index, member) {
-                String firstLetter =
-                    member.isNotEmpty ? member[0].toUpperCase() : '';
-                return MapEntry(
-                  index,
-                  Positioned(
-                    left: index * 25.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xffe9e9e9),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 2.0,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 18.0,
-                        backgroundColor: Colors.transparent,
-                        child: Text(
-                          firstLetter,
-                          style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                      ),
+          ...displayMembers.asMap().map((index, member) {
+            String firstLetter =
+                member.isNotEmpty ? member[0].toUpperCase() : '';
+            return MapEntry(
+              index,
+              Positioned(
+                left: index * 25.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xffe9e9e9),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2.0,
                     ),
                   ),
-                );
-              })
-              .values,
-
+                  child: CircleAvatar(
+                    radius: 18.0,
+                    backgroundColor: Colors.transparent,
+                    child: Text(
+                      firstLetter,
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).values,
           if (remainingCount > 0)
             Positioned(
               left: displayMembers.length * 25.0,
