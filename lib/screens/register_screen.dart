@@ -77,21 +77,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
                 controller: usernameController,
                 decoration: customInputDecoration(
-                    labelText: 'Username',
                     hintText: 'Gildong Hong',
                     suffixIcon: Icon(Icons.person))),
             SizedBox(height: 15),
             TextField(
                 controller: emailController,
                 decoration: customInputDecoration(
-                    labelText: 'Email',
                     hintText: 'gildong@example.com',
                     suffixIcon: Icon(Icons.email_outlined))),
             SizedBox(height: 15),
             TextField(
               controller: passwordController,
               decoration: customInputDecoration(
-                labelText: 'Password',
                 hintText: 'xxxxxxxx',
                 suffixIcon: Icon(Icons.visibility_off_outlined),
               ),
@@ -124,12 +121,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 InputDecoration customInputDecoration({
-  required String labelText,
   required String hintText,
   Widget? suffixIcon,
 }) {
   return InputDecoration(
-    labelText: labelText,
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,

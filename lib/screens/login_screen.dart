@@ -91,7 +91,6 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: emailController,
                 decoration: customInputDecoration(
-                    labelText: 'Email',
                     hintText: 'gildong@example.com',
                     suffixIcon: Icon(Icons.email_outlined)),
               ),
@@ -99,7 +98,6 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: passwordController,
                 decoration: customInputDecoration(
-                    labelText: 'Password',
                     hintText: 'xxxxxxxx',
                     suffixIcon: Icon(Icons.visibility_off_outlined)),
                 obscureText: true,
@@ -168,12 +166,10 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 InputDecoration customInputDecoration({
-  required String labelText,
   required String hintText,
   Widget? suffixIcon,
 }) {
   return InputDecoration(
-    labelText: labelText,
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,
