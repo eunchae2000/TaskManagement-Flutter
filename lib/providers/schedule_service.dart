@@ -197,6 +197,49 @@ class ScheduleService {
     }
   }
 
+  Future<Map<String, dynamic>> updateTask(
+      int taskId,
+      String taskTitle,
+      String taskDescription,
+      String taskStartTime,
+      String taskEndTime,
+      String taskDateTime,
+      int categorieId,
+      List<String> friendNames,
+      List<Map<String, dynamic>> plans,
+      ) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? userId = prefs.getString('user_id');
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/update/$taskId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'task_title': taskTitle,
+          'task_description': taskDescription,
+          'task_startTime': taskStartTime,
+          'task_endTime': taskEndTime,
+          'task_dateTime': taskDateTime,
+          'categorie_id': categorieId,
+          'user_id': userId,
+          'friend_name': friendNames,
+          'plans': plans,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to update task');
+      }
+    } catch (e) {
+      throw Exception('Error updating task: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> getParticipant(int taskId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/task/$taskId/participants'),
@@ -549,7 +592,6 @@ class ScheduleService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        print(data);
 
         List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(data['friendResult']);
         List<Map<String, dynamic>> tasks = List<Map<String, dynamic>>.from(data['taskResult']);
@@ -563,8 +605,55 @@ class ScheduleService {
             'Failed to load available friends. Status code: ${response.statusCode}');
       }
     } catch (error) {
-      print("Error fetching available friends: $error");
       throw error;
+    }
+  }
+
+  Future<Map<String, dynamic>> addTaskInvitation(
+      List<String> friendNames,
+      int taskId,
+      ) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? userId = prefs.getString('user_id');
+
+    if (token == null || userId == null) {
+      return {
+        'success': false,
+        'message': 'No token found. Please log in again.',
+      };
+    }
+
+    final url = Uri.parse('$baseUrl/task-invitation');
+
+    final Map<String, dynamic> requestData = {
+      'friend_name': friendNames,
+      'user_id': userId,
+      'task_id': taskId,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(requestData),
+      );
+      if (response.statusCode == 201) {
+        return {
+          'success': true,
+          'message': 'Task added successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to add task: ${response.body}',
+        };
+      }
+    } catch (error) {
+      return {
+        'success': false,
+        'message': 'Network error: $error',
+      };
     }
   }
 

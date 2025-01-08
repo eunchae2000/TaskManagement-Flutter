@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
+import 'package:task_management/screens/update_task_screen.dart';
 
 class DetailScreen extends StatefulWidget {
   final Map<String, dynamic> task;
@@ -81,7 +82,13 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                   child: IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              UpdateTaskScreen(task: widget.task),
+                        ),
+                      );
                     },
                     icon: Icon(Icons.edit_calendar),
                     color: Colors.black,

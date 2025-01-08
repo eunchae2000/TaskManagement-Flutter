@@ -67,6 +67,16 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
     }
   }
 
+  Future<void> _addTaskInvitation() async {
+    final selectedFriendsNames =
+        selectFriends.map((friend) => friend['user_name'] as String).toList();
+
+    final result = await _scheduleService.addTaskInvitation(
+        selectedFriendsNames, widget.task['task_id']);
+
+    print(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<String> members = (widget.task['members'] is List)
@@ -96,7 +106,9 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
                   fontWeight: FontWeight.bold,
                   color: Color(0xff637899)),
             ),
-            SizedBox(height: 30,),
+            SizedBox(
+              height: 30,
+            ),
             Center(
               child: Container(
                   margin: EdgeInsets.only(bottom: 15),
@@ -185,7 +197,9 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Container(
               decoration: BoxDecoration(
                 color: Color(0xffddf2ff),
@@ -249,7 +263,9 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
                     : [],
               ),
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Center(
               child: Wrap(
                 spacing: 7.0,
@@ -382,7 +398,10 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
                 SizedBox(width: 20),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _addTaskInvitation();
+                      Navigator.pop(context);
+                    },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
                           vertical: 17.0, horizontal: 16.0),
