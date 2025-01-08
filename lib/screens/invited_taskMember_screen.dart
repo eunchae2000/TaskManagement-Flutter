@@ -1,4 +1,6 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:task_management/providers/schedule_service.dart';
 
 class InvitedTaskmemberScreen extends StatefulWidget {
@@ -14,11 +16,43 @@ class InvitedTaskmemberScreen extends StatefulWidget {
 class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
   final ScheduleService _scheduleService = ScheduleService();
   List<Map<String, dynamic>> plans = [];
+  Map<String, dynamic> friends = {};
+  List<Map<String, dynamic>> selectFriends = [];
+  Map<String, dynamic>? selectedFriend;
 
   @override
   void initState() {
     super.initState();
     _fetchPlan();
+    _loadFriends();
+  }
+
+  String formatDate(String date) {
+    List<String> parts = date.split('-');
+    String year = parts[0];
+    String month = parts[1].padLeft(2, '0');
+    String day = parts[2].padLeft(2, '0');
+
+    DateTime dateTime = DateTime.parse('$year-$month-$day');
+
+    String formattedDate = DateFormat('d MMM yyyy').format(dateTime);
+
+    return formattedDate;
+  }
+
+  Future<void> _loadFriends() async {
+    try {
+      Map<String, dynamic> friendList =
+          await _scheduleService.fetchAvailableFriends(widget.task['task_id']);
+      setState(() {
+        friends = friendList;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Friend List Failed')));
+      }
+    }
   }
 
   Future<void> _fetchPlan() async {
@@ -56,15 +90,18 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              '${widget.task['task_dateTime']}',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              formatDate(widget.task['task_dateTime']),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff637899)),
             ),
-            SizedBox(height: 20,),
+            SizedBox(height: 30,),
             Center(
               child: Container(
                   margin: EdgeInsets.only(bottom: 15),
                   decoration: BoxDecoration(
-                    color: Colors.black,
+                    color: Color(0xff637899),
                     borderRadius: BorderRadius.circular(40.0),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -96,7 +133,148 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
               child: _memberAvatars(members),
             ),
             SizedBox(
-              height: 40,
+              height: 30,
+            ),
+            Container(
+              child: Center(
+                child: Column(
+                  children: [
+                    Text('pending'),
+                    Wrap(
+                      spacing: 7.0,
+                      runSpacing: 1.0,
+                      children: friends['taskResult'] != null
+                          ? List<Widget>.from(friends['taskResult']
+                              .where((member) => member['status'] == 'pending')
+                              .map((member) {
+                              return Chip(
+                                label: Text(member['user_name'] ?? 'Unknown'),
+                                backgroundColor: Color(0xffe9e9e9),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      color: Color(0xffe9e9e9), width: 1.5),
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: 5.0),
+                              );
+                            }).toList())
+                          : [],
+                    ),
+                    Text('accepted'),
+                    Wrap(
+                      spacing: 7.0,
+                      runSpacing: 1.0,
+                      children: friends['taskResult'] != null
+                          ? List<Widget>.from(friends['taskResult']
+                              .where((member) => member['status'] == 'accepted')
+                              .map((member) {
+                              return Chip(
+                                label: Text(member['user_name'] ?? 'Unknown'),
+                                backgroundColor: Color(0xffddf2ff),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      color: Color(0xff8aade1), width: 1.5),
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: 5.0),
+                              );
+                            }).toList())
+                          : [],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20,),
+            Container(
+              decoration: BoxDecoration(
+                color: Color(0xffddf2ff),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: DropdownButton2<Map<String, dynamic>>(
+                hint: Text(
+                  'Select Friend',
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                value: selectedFriend,
+                onChanged: (Map<String, dynamic>? newFriend) {
+                  setState(() {
+                    if (newFriend != null) {
+                      selectedFriend = newFriend;
+                      if (selectFriends.contains(newFriend)) {
+                        selectFriends.remove(newFriend);
+                      } else {
+                        selectFriends.add(newFriend);
+                      }
+                    }
+                  });
+                },
+                isExpanded: true,
+                underline: SizedBox.shrink(),
+                dropdownStyleData: DropdownStyleData(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 5.0,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                ),
+                menuItemStyleData: MenuItemStyleData(
+                  height: 50,
+                ),
+                items: friends['friendResult'] != null
+                    ? List<DropdownMenuItem<Map<String, dynamic>>>.from(
+                        friends['friendResult']!.map((friend) {
+                          return DropdownMenuItem<Map<String, dynamic>>(
+                            value: friend,
+                            child: Text(
+                              friend['user_name'] ?? 'Unknown',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                          );
+                        }),
+                      )
+                    : [],
+              ),
+            ),
+            SizedBox(height: 10,),
+            Center(
+              child: Wrap(
+                spacing: 7.0,
+                runSpacing: 1.0,
+                children: selectFriends.map((member) {
+                  return Chip(
+                    label: Text(member['user_name']),
+                    backgroundColor: Color(0xffffe7d6),
+                    deleteIcon: Icon(Icons.close),
+                    onDeleted: () {
+                      setState(() {
+                        selectFriends.remove(member);
+                      });
+                    },
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Color(0xffffe7d6), width: 1.0),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                  );
+                }).toList(),
+              ),
+            ),
+            SizedBox(
+              height: 20,
             ),
             Expanded(
               child: plans.isEmpty
@@ -180,7 +358,45 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
                         ),
                       ],
                     ),
-            )
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 17.0, horizontal: 16.0),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Color(0xffff4700),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        side: BorderSide(color: Color(0xffff4700), width: 2.0),
+                      ),
+                    ),
+                    child: Text('Cancel', style: TextStyle(fontSize: 17)),
+                  ),
+                ),
+                SizedBox(width: 20),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 17.0, horizontal: 16.0),
+                      backgroundColor: Color(0xffff4700),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text('Task Invite', style: TextStyle(fontSize: 17)),
+                  ),
+                )
+              ],
+            ),
           ],
         ),
       ),

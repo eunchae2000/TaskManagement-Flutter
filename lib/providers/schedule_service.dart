@@ -178,7 +178,6 @@ class ScheduleService {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestData),
       );
-      print(response.body);
       if (response.statusCode == 201) {
         return {
           'success': true,
@@ -539,4 +538,34 @@ class ScheduleService {
       throw Exception('Server error: ${response.statusCode}');
     }
   }
+  Future<Map<String, dynamic>> fetchAvailableFriends(int taskId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+    final url = Uri.parse(
+        "$baseUrl/available-friend/$taskId/$userId");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        print(data);
+
+        List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(data['friendResult']);
+        List<Map<String, dynamic>> tasks = List<Map<String, dynamic>>.from(data['taskResult']);
+
+        return {
+          'friendResult': friends,
+          'taskResult': tasks,
+        };
+      } else {
+        throw Exception(
+            'Failed to load available friends. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print("Error fetching available friends: $error");
+      throw error;
+    }
+  }
+
 }
