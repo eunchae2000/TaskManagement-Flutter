@@ -19,7 +19,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final TextEditingController startTimeController = TextEditingController();
   final TextEditingController endTimeController = TextEditingController();
 
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
 
@@ -47,6 +47,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     _loadCategories();
     _loadFriends();
     _addNewPlan();
+    _selectedDate = widget.date ?? DateTime.now();
   }
 
   Future<void> _loadFriends() async {
@@ -197,7 +198,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       selectedCategoryId ?? 1,
       plans,
     );
-
+    print('date date ${getFormattedDate(_selectedDate)}');
     if (mounted) {
       if (result['success']) {
         _showSnackBar('Task added successfully');
