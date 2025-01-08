@@ -187,8 +187,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
             })
         .toList();
 
-    print('${plans}');
-
     final result = await scheduleService.addTask(
       selectedFriendsNames,
       titleController.text,

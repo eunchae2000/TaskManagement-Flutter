@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:task_management/providers/schedule_service.dart';
 
 import 'package:task_management/screens/detail_screen.dart';
+import 'package:task_management/screens/invited_taskMember_screen.dart';
 
 class InvitedScreen extends StatefulWidget {
   @override
@@ -475,7 +476,7 @@ class _InvitedScreenState extends State<InvitedScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailScreen(task: task),
+                        builder: (context) => InvitedTaskmemberScreen(task: task),
                       ));
                 },
               ));
@@ -484,6 +485,8 @@ class _InvitedScreenState extends State<InvitedScreen> {
     ));
   }
 }
+
+
 
 InputDecoration customInputDecoration({
   required String hintText,
