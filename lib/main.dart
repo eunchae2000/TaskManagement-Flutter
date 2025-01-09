@@ -53,8 +53,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 0,
         title: null,
-        automaticallyImplyLeading: false,
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomAppBar(

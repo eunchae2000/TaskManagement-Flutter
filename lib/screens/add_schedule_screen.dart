@@ -183,7 +183,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     final plans = _plans
         .map((plan) => {
               'plan_detail': plan['plan_detail']!.text,
-              'plan_startTime':_planStartTime!.format(context),
+              'plan_startTime': _planStartTime!.format(context),
               'plan_endTime': _planEndTime!.format(context),
             })
         .toList();
@@ -237,12 +237,39 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     final List<DateTime> weekDay = getWeekDates();
     final selectedDate = Provider.of<ScheduleProvider>(context);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(20.0),
-        child: AppBar(
-          title: null,
-          automaticallyImplyLeading: false,
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+                onPressed: () {
+                  _addTask();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CalendarScreen(),
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Text(
+                      'Complete',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Icon(
+                      Icons.check_rounded,
+                      size: 15,
+                      color: Color(0xffff4700),
+                    ),
+                  ],
+                ))
+          ],
         ),
+        automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -332,6 +359,24 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               ),
             ),
             SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.title_rounded,
+                    size: 15,
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    'Title',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             TextField(
               controller: titleController,
               decoration: customInputDecoration(
@@ -339,6 +384,24 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               ),
             ),
             SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.wb_incandescent_rounded,
+                    size: 15,
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    'Description',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             TextField(
               controller: descriptionController,
               decoration: customInputDecoration(
@@ -347,11 +410,29 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               maxLines: 5,
             ),
             SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.category_rounded,
+                    size: 15,
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    'Category',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
               decoration: BoxDecoration(
-                color: Color(0xffffe7d6),
+                color: Color(0xfff6e1de),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: DropdownButton<int>(
@@ -381,6 +462,24 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               ),
             ),
             SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.access_alarm_rounded,
+                    size: 15,
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    'Task Time',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             Row(
               children: [
                 Expanded(
@@ -415,6 +514,24 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               ],
             ),
             SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.add_task_rounded,
+                    size: 15,
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    'Plan',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -423,10 +540,27 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextField(
-                      controller: _plans[index]['plan_detail'],
-                      decoration:
-                          customInputDecoration(hintText: "Plan Detail"),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _plans[index]['plan_detail'],
+                            decoration:
+                                customInputDecoration(hintText: "Plan Detail"),
+                          ),
+                        ),
+                        if (_plans.isNotEmpty)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                size: 30,
+                              ),
+                              onPressed: () => _removePlan(index),
+                            ),
+                          ),
+                      ],
                     ),
                     SizedBox(height: 5),
                     Row(
@@ -437,7 +571,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                           hintText: _planStartTime == null
                               ? 'Plan Start'
                               : _planStartTime!.format(context),
-                          isStartTime: true,
                           onTap: () => _selectTime(context, true, 1),
                         ),
                         SizedBox(width: 20),
@@ -449,30 +582,20 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                           hintText: _planEndTime == null
                               ? 'Plan End'
                               : _planEndTime!.format(context),
-                          isStartTime: false,
                           onTap: () => _selectTime(context, false, 1),
                         ),
                       ],
                     ),
-                    if (_plans.length > 1)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => _removePlan(index),
-                        ),
-                      ),
                   ],
                 );
               },
             ),
-            SizedBox(height: 5),
-            Container(
+            SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _addNewPlan,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xffd9d9d9),
+                  backgroundColor: Color(0xffa76962),
                   foregroundColor: Color(0xffa3a3a3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
@@ -487,11 +610,29 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               ),
             ),
             SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.people_alt_rounded,
+                    size: 15,
+                  ),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    'Members',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
               decoration: BoxDecoration(
-                color: Color(0xffffe7d6),
+                color: Color(0xfff6e1de),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: DropdownButton<Map<String, dynamic>>(
@@ -546,74 +687,9 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 );
               }).toList(),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.transparent,
-        child: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 17.0, horizontal: 16.0),
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xffff4700),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    side: BorderSide(color: Color(0xffff4700), width: 2.0),
-                  ),
-                ),
-                child: Text('Cancel', style: TextStyle(fontSize: 17)),
-              ),
+            SizedBox(
+              height: 20,
             ),
-            SizedBox(width: 20),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  _addTask();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CalendarScreen(),
-                    ),
-                  );
-
-                  final startTimeInMinutes =
-                      _startTime!.hour * 60 + _startTime!.minute;
-                  final endTimeInMinutes =
-                      _endTime!.hour * 60 + _endTime!.minute;
-
-                  if (startTimeInMinutes >= endTimeInMinutes) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('End time must be after start time!')),
-                    );
-                    return;
-                  }
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Schedule added successfully!')),
-                  );
-
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 17.0, horizontal: 16.0),
-                  backgroundColor: Color(0xffff4700),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                child: Text('Save Task', style: TextStyle(fontSize: 17)),
-              ),
-            )
           ],
         ),
       ),
@@ -625,7 +701,6 @@ Expanded _buildTimeField({
   required BuildContext context,
   required TextEditingController? controller,
   required String hintText,
-  required bool isStartTime,
   required Function onTap,
 }) {
   return Expanded(
@@ -649,7 +724,7 @@ InputDecoration customInputDecoration({
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: Color(0xffffe7d6),
+    fillColor: Color(0xfff6e1de),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(15),
       borderSide: BorderSide.none,

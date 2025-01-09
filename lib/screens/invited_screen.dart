@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:task_management/providers/schedule_service.dart';
-
-import 'package:task_management/screens/detail_screen.dart';
 import 'package:task_management/screens/invited_taskMember_screen.dart';
 
 class InvitedScreen extends StatefulWidget {
@@ -52,8 +49,10 @@ class _InvitedScreenState extends State<InvitedScreen> {
 
   String calculateDDay(String taskDate) {
     final today = DateTime.now();
+    final todayDateOnly = DateTime(today.year, today.month, today.day);
     final scheduleDate = DateFormat('yyyy-MM-dd').parse(taskDate);
-    final difference = scheduleDate.difference(today).inDays;
+    final normalizedScheduleDate = DateTime(scheduleDate.year, scheduleDate.month, scheduleDate.day);
+    final difference = normalizedScheduleDate.difference(todayDateOnly).inDays;
 
     if (difference == 0) {
       return "Today";
@@ -430,63 +429,105 @@ class _InvitedScreenState extends State<InvitedScreen> {
         ),
       );
     }
-    return Expanded(
-        child: Padding(
+
+    return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           final task = tasks[index];
+          print(task['task_dateTime']);
           return Container(
             margin: EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Color(0xffffe7d6),
-                borderRadius: BorderRadius.circular(10),
+            decoration: BoxDecoration(
+              color: Color(0xff8aade1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${task['task_dateTime']}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      Text(
+                        '${task['task_startTime']} - ${task['task_endTime']}',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    task['task_title']!,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ],
               ),
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${task['task_dateTime']}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        Text(
-                          '${task['task_startTime']} - ${task['task_endTime']}',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                      ],
+              subtitle: Row(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white54,
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      child: Text(
+                        calculateDDay(task['task_dateTime']),
+                        style: TextStyle(color: Colors.black54),
+                      )),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top:10),
+                    decoration: BoxDecoration(
+                      color: calculateDuration(task['task_startTime'],
+                                  task['task_endTime']) ==
+                              ''
+                          ? Colors.white
+                          : Colors.white54,
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
-                    Text(
-                      task['task_title']!,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Text(
+                      calculateDuration(
+                          task['task_startTime'], task['task_endTime']),
+                      style: TextStyle(
+                        color: calculateDuration(task['task_startTime'],
+                                    task['task_endTime']) ==
+                                ''
+                            ? Colors.black
+                            : Colors.black54,
+                      ),
                     ),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => InvitedTaskmemberScreen(task: task),
-                      ));
-                },
-              ));
+                  ),
+                ],
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InvitedTaskmemberScreen(task: task),
+                  ),
+                );
+              },
+            ),
+          );
         },
       ),
-    ));
+    );
   }
 }
-
-
 
 InputDecoration customInputDecoration({
   required String hintText,

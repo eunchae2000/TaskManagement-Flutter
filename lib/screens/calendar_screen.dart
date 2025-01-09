@@ -145,20 +145,15 @@ class _WeekCalendarState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildCalendarHeader(),
-              SizedBox(
-                height: 7,
-              ),
-              _buildScheduleList(),
-            ],
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCalendarHeader(),
+          SizedBox(
+            height: 7,
           ),
-        ),
+          _buildScheduleList(),
+        ],
       ),
     );
   }
