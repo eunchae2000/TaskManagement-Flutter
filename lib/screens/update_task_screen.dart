@@ -63,6 +63,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     );
 
     if (pickedTime != null) {
+      if(!mounted) return;
       final formattedTime = pickedTime.format(context);
       setState(() {
         if (isStartTime) {
@@ -132,6 +133,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
       setState(() {
         _isLoading = false;
       });
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to fetch plans: $error'),
@@ -186,6 +188,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
       });
 
       if (response['success']) {
+        if(!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Task updated successfully!'),
@@ -193,6 +196,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
           ),
         );
       } else {
+        if(!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: ${response['message']}'),
@@ -546,7 +550,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                   ),
                 ],
               ),
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _addNewPlan,

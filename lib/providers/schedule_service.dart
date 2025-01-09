@@ -209,7 +209,6 @@ class ScheduleService {
       List<Map<String, dynamic>> plans,
       ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
     String? userId = prefs.getString('user_id');
     try {
       final response = await http.put(
@@ -654,6 +653,23 @@ class ScheduleService {
         'success': false,
         'message': 'Network error: $error',
       };
+    }
+  }
+
+  Future<Map<String, dynamic>> getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/user/$userId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return responseData;
+    } else {
+      throw Exception('Failed to fetch participants and plans');
     }
   }
 

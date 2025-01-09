@@ -14,8 +14,6 @@ class DetailScreen extends StatefulWidget {
 class _DetailScreenState extends State<DetailScreen> {
   final ScheduleService _scheduleService = ScheduleService();
   List<Map<String, dynamic>> plans = [];
-  bool _isLoading = true;
-  String? _error;
 
   @override
   void initState() {
@@ -29,13 +27,9 @@ class _DetailScreenState extends State<DetailScreen> {
           await _scheduleService.getParticipant(widget.task['task_id']);
       setState(() {
         plans = List<Map<String, dynamic>>.from(responseData['planResult']);
-        _isLoading = false;
       });
     } catch (error) {
-      setState(() {
-        _error = error.toString();
-        _isLoading = false;
-      });
+      throw Error();
     }
   }
 

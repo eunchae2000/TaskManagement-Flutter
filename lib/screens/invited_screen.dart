@@ -436,7 +436,6 @@ class _InvitedScreenState extends State<InvitedScreen> {
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           final task = tasks[index];
-          print(task['task_dateTime']);
           return Container(
             margin: EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
@@ -517,7 +516,7 @@ class _InvitedScreenState extends State<InvitedScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => InvitedTaskmemberScreen(task: task),
+                    builder: (context) => InvitedTaskMemberScreen(task: task),
                   ),
                 );
               },

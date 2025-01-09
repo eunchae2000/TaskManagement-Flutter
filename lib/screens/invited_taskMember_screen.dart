@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:task_management/providers/schedule_service.dart';
 
-class InvitedTaskmemberScreen extends StatefulWidget {
+class InvitedTaskMemberScreen extends StatefulWidget {
   final Map<String, dynamic> task;
 
-  InvitedTaskmemberScreen({required this.task});
+  InvitedTaskMemberScreen({required this.task});
 
   @override
-  _InvitedTaskmemberScreenState createState() =>
-      _InvitedTaskmemberScreenState();
+  _InvitedTaskMemberScreenState createState() =>
+      _InvitedTaskMemberScreenState();
 }
 
-class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
+class _InvitedTaskMemberScreenState extends State<InvitedTaskMemberScreen> {
   final ScheduleService _scheduleService = ScheduleService();
   List<Map<String, dynamic>> plans = [];
   Map<String, dynamic> friends = {};
@@ -63,7 +63,7 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
         plans = List<Map<String, dynamic>>.from(responseData['planResult']);
       });
     } catch (error) {
-      print(error);
+      throw Error();
     }
   }
 
@@ -74,7 +74,16 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
     final result = await _scheduleService.addTaskInvitation(
         selectedFriendsNames, widget.task['task_id']);
 
-    print(result);
+    if (mounted) {
+      if (result['success']) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Task added successfully')));
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Task invited failed')));
+      }
+    }
   }
 
   @override
@@ -363,7 +372,7 @@ class _InvitedTaskmemberScreenState extends State<InvitedTaskmemberScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            InvitedTaskmemberScreen(task: plan),
+                                            InvitedTaskMemberScreen(task: plan),
                                       ),
                                     );
                                   },

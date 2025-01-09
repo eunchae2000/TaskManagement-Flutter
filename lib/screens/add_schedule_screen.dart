@@ -154,7 +154,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       context: context,
       initialTime: initialSelectedTime,
     );
-    print(pickedTime);
 
     if (pickedTime != null) {
       setState(() {
@@ -198,7 +197,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       selectedCategoryId ?? 1,
       plans,
     );
-    print('date date ${getFormattedDate(_selectedDate)}');
     if (mounted) {
       if (result['success']) {
         _showSnackBar('Task added successfully');

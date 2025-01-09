@@ -126,15 +126,18 @@ class _WeekCalendarState extends State<CalendarScreen> {
       });
 
       if (tasks.isEmpty) {
+        if(!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('No tasks found for the selected category and date')),
         );
       } else {
+        if(!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Successfully fetched ${tasks.length} tasks')),
         );
       }
     } catch (error) {
+      if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${error.toString()}')),
       );
@@ -492,7 +495,7 @@ Widget _memberAvatars(List<String> members) {
   }
 
   return Center(
-    child: Container(
+    child: SizedBox(
       height: 40.0,
       width: containerWidth,
       child: Stack(
