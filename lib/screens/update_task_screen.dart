@@ -201,54 +201,107 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Update Task')),
+        appBar: AppBar(title: null),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  controller: _taskTitleController,
-                  decoration: customInputDecoration(hintText: 'Task Title'),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: _taskDescriptionController,
-                  decoration:
-                      customInputDecoration(hintText: 'Task Description'),
-                ),
-                SizedBox(height: 20),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        readOnly: true,
-                        controller: _taskStartTimeController,
-                        decoration: customInputDecoration(
-                          hintText: _startTime == null
-                              ? 'Select Start Time'
-                              : _startTime!.format(context),
-                          suffixIcon: Icon(Icons.access_time),
-                        ),
-                        onTap: () => _selectTime(context, true),
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.title_rounded, size: 15,),
+                          SizedBox(width: 7,),
+                          Text(
+                            'Title',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 20),
-                    Icon(Icons.arrow_forward_sharp),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: TextField(
-                        readOnly: true,
-                        controller: _taskEndTimeController,
-                        decoration: customInputDecoration(
-                          hintText: _endTime == null
-                              ? 'Select End Time'
-                              : _endTime!.format(context),
-                          suffixIcon: Icon(Icons.access_time),
-                        ),
-                        onTap: () => _selectTime(context, false),
+                    TextField(
+                      controller: _taskTitleController,
+                      decoration: customInputDecoration(hintText: 'Task Title'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.wb_incandescent_rounded, size: 15,),
+                          SizedBox(width: 7,),
+                          Text(
+                            'Description',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
+                    ),
+                    TextField(
+                      controller: _taskDescriptionController,
+                      decoration:
+                          customInputDecoration(hintText: 'Task Description'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.access_alarm_rounded, size: 15,),
+                          SizedBox(width: 7,),
+                          Text(
+                            'Task Time',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            readOnly: true,
+                            controller: _taskStartTimeController,
+                            decoration: customInputDecoration(
+                              hintText: _startTime == null
+                                  ? 'Select Start Time'
+                                  : _startTime!.format(context),
+                              suffixIcon: Icon(Icons.access_time),
+                            ),
+                            onTap: () => _selectTime(context, true),
+                          ),
+                        ),
+                        SizedBox(width: 20),
+                        Icon(Icons.arrow_forward_sharp),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: TextField(
+                            readOnly: true,
+                            controller: _taskEndTimeController,
+                            decoration: customInputDecoration(
+                              hintText: _endTime == null
+                                  ? 'Select End Time'
+                                  : _endTime!.format(context),
+                              suffixIcon: Icon(Icons.access_time),
+                            ),
+                            onTap: () => _selectTime(context, false),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -257,121 +310,170 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                   decoration:
                       InputDecoration(labelText: 'Date (e.g., 2025-01-10)'),
                 ),
-                Container(
-                  width: double.infinity,
-                  padding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-                  decoration: BoxDecoration(
-                    color: Color(0xffffe7d6),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: DropdownButton<int>(
-                    hint: Text(
-                      selectedCategoryId == null
-                          ? 'Select Category'
-                          : categories.firstWhere(
-                              (category) =>
-                                  category['categorie_id'] ==
-                                  selectedCategoryId,
-                              orElse: () => {'categorie_name': 'Unknown'},
-                            )['categorie_name'],
-                      style: TextStyle(fontWeight: FontWeight.normal),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.category_outlined, size: 15,),
+                          SizedBox(width: 7,),
+                          Text(
+                            'Category',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
-                    value: selectedCategoryId,
-                    onChanged: (int? newValue) {
-                      setState(() {
-                        selectedCategoryId = newValue;
-                        selectedCategoryName = categories.firstWhere(
-                          (category) => category['categorie_id'] == newValue,
-                        )['categorie_name'];
-                      });
-                    },
-                    isExpanded: true,
-                    underline: SizedBox.shrink(),
-                    items: categories.map((category) {
-                      return DropdownMenuItem<int>(
-                        value: category['categorie_id'],
-                        child: Text(
-                          category['categorie_name'],
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        color: Color(0xffffe7d6),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: DropdownButton<int>(
+                        hint: Text(
+                          selectedCategoryId == null
+                              ? 'Select Category'
+                              : categories.firstWhere(
+                                  (category) =>
+                                      category['categorie_id'] ==
+                                      selectedCategoryId,
+                                  orElse: () => {'categorie_name': 'Unknown'},
+                                )['categorie_name'],
                           style: TextStyle(fontWeight: FontWeight.normal),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                        value: selectedCategoryId,
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            selectedCategoryId = newValue;
+                            selectedCategoryName = categories.firstWhere(
+                              (category) =>
+                                  category['categorie_id'] == newValue,
+                            )['categorie_name'];
+                          });
+                        },
+                        isExpanded: true,
+                        underline: SizedBox.shrink(),
+                        items: categories.map((category) {
+                          return DropdownMenuItem<int>(
+                            value: category['categorie_id'],
+                            child: Text(
+                              category['categorie_name'],
+                              style: TextStyle(fontWeight: FontWeight.normal),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 20),
-                Text('Friend Names:'),
-                Wrap(
-                  spacing: 8.0,
-                  children: _friendNames.map((friendName) {
-                    return Chip(
-                      label: Text(friendName),
-                      onDeleted: () {
-                        setState(() {
-                          _friendNames.remove(friendName);
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: _plans.length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextField(
-                          controller: _plans[index]['plan_detail']
-                              as TextEditingController,
-                          decoration:
-                              customInputDecoration(hintText: "Plan Detail"),
-                        ),
-                        SizedBox(height: 5),
-                        Row(
+                if (_friendNames.isNotEmpty)
+                  Column(
+                    children: [
+                      Text('Friend Names:'),
+                      Wrap(
+                        spacing: 8.0,
+                        children: _friendNames.map((friendName) {
+                          return Chip(
+                            label: Text(friendName),
+                            onDeleted: () {
+                              setState(() {
+                                _friendNames.remove(friendName);
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.add_task_rounded, size: 15,),
+                          SizedBox(width: 7,),
+                          Text(
+                            'Plan',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: _plans.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildTimeField(
-                              context: context,
-                              controller: _plans[index]['plan_startTime']
-                                  as TextEditingController,
-                              hintText: _plans[index]['plan_startTime']
-                                          ?.text
-                                          .isEmpty ??
-                                      true
-                                  ? 'Plan Start'
-                                  : _plans[index]['plan_startTime']!.text,
-                              onTap: () =>
-                                  _selectPlanTime(context, true, index),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _plans[index]['plan_detail']
+                                        as TextEditingController,
+                                    decoration: customInputDecoration(
+                                        hintText: "Plan Detail"),
+                                  ),
+                                ),
+                                if (_plans.length > 0)
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: IconButton(
+                                      icon: Icon(Icons.delete, size: 30,),
+                                      onPressed: () => _removePlan(index),
+                                    ),
+                                  ),
+                              ],
                             ),
-                            SizedBox(width: 20),
-                            Icon(Icons.arrow_forward_sharp),
-                            SizedBox(width: 20),
-                            _buildTimeField(
-                              context: context,
-                              controller: _plans[index]['plan_endTime']
-                                  as TextEditingController,
-                              hintText:
-                                  _plans[index]['plan_endTime']?.text.isEmpty ??
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                _buildTimeField(
+                                  context: context,
+                                  controller: _plans[index]['plan_startTime']
+                                      as TextEditingController,
+                                  hintText: _plans[index]['plan_startTime']
+                                              ?.text
+                                              .isEmpty ??
+                                          true
+                                      ? 'Plan Start'
+                                      : _plans[index]['plan_startTime']!.text,
+                                  onTap: () =>
+                                      _selectPlanTime(context, true, index),
+                                ),
+                                SizedBox(width: 20),
+                                Icon(Icons.arrow_forward_sharp),
+                                SizedBox(width: 20),
+                                _buildTimeField(
+                                  context: context,
+                                  controller: _plans[index]['plan_endTime']
+                                      as TextEditingController,
+                                  hintText: _plans[index]['plan_endTime']
+                                              ?.text
+                                              .isEmpty ??
                                           true
                                       ? 'Plan End'
                                       : _plans[index]['plan_endTime']!.text,
-                              onTap: () =>
-                                  _selectPlanTime(context, false, index),
+                                  onTap: () =>
+                                      _selectPlanTime(context, false, index),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                        if (_plans.length > 0)
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () => _removePlan(index),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 Container(
                   width: double.infinity,
