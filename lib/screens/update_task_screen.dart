@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/detail_screen.dart';
@@ -345,7 +346,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                       color: Color(0xfff6e1de),
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: DropdownButton<int>(
+                    child: DropdownButton2<int>(
                       hint: Text(
                         selectedCategoryId == null
                             ? 'Select Category'
@@ -368,6 +369,12 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                       },
                       isExpanded: true,
                       underline: SizedBox.shrink(),
+                      dropdownStyleData: DropdownStyleData(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                       items: categories.map((category) {
                         return DropdownMenuItem<int>(
                           value: category['categorie_id'],

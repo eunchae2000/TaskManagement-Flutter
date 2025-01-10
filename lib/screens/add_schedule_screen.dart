@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_management/providers/schedule_provider.dart';
@@ -433,7 +434,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 color: Color(0xfff6e1de),
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: DropdownButton<int>(
+              child: DropdownButton2<int>(
                 hint: Text(
                   'Select Category',
                   style: TextStyle(fontWeight: FontWeight.normal),

@@ -20,6 +20,26 @@ class _WeekCalendarState extends State<CalendarScreen> {
   int? selectedCategoryId;
   List<Map<String, dynamic>> tasks = [];
 
+  bool isTaskExpired(String taskDate, String taskEndTime) {
+    DateTime now = DateTime.now();
+
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    DateTime endDate = dateFormat.parse(taskDate);
+
+    DateFormat timeFormat = DateFormat("h:mm a");
+    DateTime endTime = timeFormat.parse(taskEndTime);
+
+    DateTime endDateTime = DateTime(
+      endDate.year,
+      endDate.month,
+      endDate.day,
+      endTime.hour,
+      endTime.minute,
+    );
+
+    return now.isAfter(endDateTime);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -113,7 +133,8 @@ class _WeekCalendarState extends State<CalendarScreen> {
       final List<Map<String, dynamic>> updatedTasks = [];
 
       for (var task in fetchedTasks) {
-        final participants = await _scheduleService.getParticipant(task['task_id']);
+        final participants =
+            await _scheduleService.getParticipant(task['task_id']);
         final members = (participants['result'] as List<dynamic>)
             .map((item) => item['user_name'].toString())
             .toList();
@@ -126,24 +147,25 @@ class _WeekCalendarState extends State<CalendarScreen> {
       });
 
       if (tasks.isEmpty) {
-        if(!mounted) return;
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No tasks found for the selected category and date')),
+          SnackBar(
+              content:
+                  Text('No tasks found for the selected category and date')),
         );
       } else {
-        if(!mounted) return;
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Successfully fetched ${tasks.length} tasks')),
         );
       }
     } catch (error) {
-      if(!mounted) return;
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${error.toString()}')),
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -182,13 +204,13 @@ class _WeekCalendarState extends State<CalendarScreen> {
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             DropdownButton2<int>(
               value: _selectedDay.month,
+              underline: SizedBox.shrink(),
               dropdownStyleData: DropdownStyleData(
                 decoration: BoxDecoration(
-                  color: Color(0xffffe7d6),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              underline: SizedBox.shrink(),
               iconStyleData: IconStyleData(
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
@@ -248,7 +270,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                       );
                     },
                     icon: Icon(
-                      Icons.more_horiz_rounded,
+                      Icons.more_vert_rounded,
                       color: Color(0xffffe7d6),
                       size: 25,
                     )),
@@ -341,138 +363,197 @@ class _WeekCalendarState extends State<CalendarScreen> {
           final task = tasks[index];
           final List<String> members =
               task['members'] != null ? List<String>.from(task['members']) : [];
-          return Container(
-              margin: EdgeInsets.only(bottom: 7),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
+          bool expired =
+              isTaskExpired(task['task_dateTime'], task['task_endTime']);
+          return expired
+              ? Container(
+                  margin: EdgeInsets.only(bottom: 7),
+                  decoration: BoxDecoration(
+                    color: Color(0xffffbf77),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                  child: ListTile(
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${task['task_startTime']} - ${task['task_endTime']}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${task['task_startTime']} - ${task['task_endTime']}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10,),
+                            Text(
+                              task['task_title']!,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),Text(
+                              task['task_description']!,
+                              style: TextStyle(
+                                  fontSize: 15),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 5),
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          width: 43,
+                          decoration: BoxDecoration(
+                              color: Colors.black, shape: BoxShape.circle),
+                          child: Icon(
+                            Icons.check_rounded,
+                            color: Colors.white,
                           ),
                         ),
-                        _memberAvatars(members),
                       ],
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      task['task_title']!,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        '${task['task_description']}',
-                        style: TextStyle(color: Colors.grey.shade600),
+                  ))
+              : Container(
+                  margin: EdgeInsets.only(bottom: 7),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ],
+                  ),
+                  child: ListTile(
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xffe9e9e9),
-                                  borderRadius: BorderRadius.circular(20.0),
+                            Text(
+                              '${task['task_startTime']} - ${task['task_endTime']}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            _memberAvatars(members),
+                          ],
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          task['task_title']!,
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(bottom: 20),
+                          child: Text(
+                            '${task['task_description']}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xffe9e9e9),
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    child: Text(
+                                      calculateDDay(task['task_dateTime']),
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                SizedBox(
+                                  width: 10,
                                 ),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                child: Text(
-                                  calculateDDay(task['task_dateTime']),
-                                  style: TextStyle(color: Colors.black54),
-                                )),
-                            SizedBox(
-                              width: 10,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: calculateDuration(
+                                                task['task_startTime'],
+                                                task['task_endTime']) ==
+                                            ''
+                                        ? Colors.white
+                                        : Color(0xffe9e9e9),
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  child: Text(
+                                    calculateDuration(task['task_startTime'],
+                                        task['task_endTime']),
+                                    style: TextStyle(
+                                      color: calculateDuration(
+                                                  task['task_startTime'],
+                                                  task['task_endTime']) ==
+                                              ''
+                                          ? Colors.black
+                                          : Colors.black54,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             Container(
+                              width: 43,
                               decoration: BoxDecoration(
-                                color: calculateDuration(task['task_startTime'],
-                                            task['task_endTime']) ==
-                                        ''
-                                    ? Colors.white
-                                    : Color(0xffe9e9e9),
-                                borderRadius: BorderRadius.circular(20.0),
+                                color: Colors.black,
+                                shape: BoxShape.circle,
                               ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              child: Text(
-                                calculateDuration(task['task_startTime'],
-                                    task['task_endTime']),
-                                style: TextStyle(
-                                  color: calculateDuration(
-                                              task['task_startTime'],
-                                              task['task_endTime']) ==
-                                          ''
-                                      ? Colors.black
-                                      : Colors.black54,
+                              child: IconButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailScreen(task: task),
+                                    ),
+                                  );
+                                },
+                                icon: Icon(
+                                  MaterialCommunityIcons.arrow_top_right,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Container(
-                          width: 43,
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      DetailScreen(task: task),
-                                ),
-                              );
-                            },
-                            icon: Icon(
-                              MaterialCommunityIcons.arrow_top_right,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailScreen(task: task),
-                      ));
-                },
-              ));
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailScreen(task: task),
+                          ));
+                    },
+                  ));
         },
       ),
     );

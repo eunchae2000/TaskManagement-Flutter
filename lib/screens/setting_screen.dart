@@ -81,7 +81,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       ? Icon(
                           Icons.account_circle,
                           size: 100,
-                          color: Colors.grey,
+                          color: Color(0xffffe7d6),
                         )
                       : ClipOval(
                           child: Image.network(
@@ -137,7 +137,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                 Container(
                                   padding: EdgeInsets.all(5),
                                   decoration: BoxDecoration(
-                                    color: Color(0xffe9e9e9),
+                                    color: Color(0xffffe7d6),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(

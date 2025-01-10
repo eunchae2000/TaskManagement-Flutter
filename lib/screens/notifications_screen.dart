@@ -21,14 +21,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(25.0),
-        child: AppBar(
-          title: Text('Notifications'),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      ),
       body: _buildNotificationList(),
     );
   }
@@ -140,7 +132,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
       );
     }
-
 
     final displayedNotifications =
         showFullList ? notifications : notifications.take(3).toList();

@@ -14,7 +14,7 @@ class CustomTextButton extends StatelessWidget {
     required this.onPressed,
     required this.leadingIcon,
     required this.text,
-    this.backgroundColor = const Color(0xffe9e9e9),
+    this.backgroundColor = const Color(0xffffe7d6),
     this.iconColor = const Color(0xffff4700),
     this.textColor = const Color(0xffff4700),
     this.trailingIconColor = const Color(0xffff4700),
