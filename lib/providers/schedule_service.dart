@@ -80,6 +80,27 @@ class ScheduleService {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/logout'),
+        headers: {
+          'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.remove('jwt_token');
+      } else {
+        throw Exception('Failed to log out');
+      }
+    } catch (e) {
+      print('Error during logout: $e');
+    }
+  }
+
+
   Future<List<Map<String, dynamic>>> fetchCategories() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/categories'));
