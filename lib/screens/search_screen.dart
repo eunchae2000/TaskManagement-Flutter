@@ -39,11 +39,10 @@ class _SearchScreenState extends State<SearchScreen>
       setState(() {
         _selectedDate = pickedDate;
       });
-      await _fetchTasks(); // 날짜 선택 후 태스크를 다시 가져오기
+      await _fetchTasks();
     }
   }
 
-  // 선택된 날짜에 해당하는 태스크를 가져오는 메서드
   Future<void> _fetchTasks() async {
     if (_selectedDate == null) return;
 
@@ -51,12 +50,14 @@ class _SearchScreenState extends State<SearchScreen>
     try {
       final tasks = await ScheduleService().fetchTasksByDate(formattedDate);
       setState(() {
-        _tasks = tasks; // _tasks를 새 데이터로 업데이트
+        _tasks = tasks;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching tasks: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching tasks: $e')),
+        );
+      }
     }
   }
 
@@ -81,8 +82,10 @@ class _SearchScreenState extends State<SearchScreen>
         setState(() {
           filterTasks = [];
         });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error: $e')));
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
       });
     }
   }
@@ -119,8 +122,10 @@ class _SearchScreenState extends State<SearchScreen>
         setState(() {
           filterFriends = [];
         });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error: $e')));
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
       });
     }
   }
@@ -328,11 +333,9 @@ class _SearchScreenState extends State<SearchScreen>
                                       borderRadius: BorderRadius.circular(10)),
                                   child: Text(task['task_dateTime']),
                                 ),
-                                Container(
-                                  child: Text(task['task_title'],
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                )
+                                Text(task['task_title'],
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -401,27 +404,27 @@ class _SearchScreenState extends State<SearchScreen>
                   child: ListTile(
                     title: Text(task['task_title']),
                     subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: Text('${task['task_description']}'),
-                      ),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 5,
-                        children: [
-                          if (participantNames.length > 1)
-                            Text(
-                                '${participantNames[0]}   +${participantNames.length - 1}'),
-                          if (participantNames.length == 1)
-                            Text(participantNames[0]),
-                          if (participantNames.isEmpty)
-                            Text('No participants'),
-                        ],
-                      ),
-                    ],
-                  ),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(left: 5, right: 5),
+                          child: Text('${task['task_description']}'),
+                        ),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 5,
+                          children: [
+                            if (participantNames.length > 1)
+                              Text(
+                                  '${participantNames[0]}   +${participantNames.length - 1}'),
+                            if (participantNames.length == 1)
+                              Text(participantNames[0]),
+                            if (participantNames.isEmpty)
+                              Text('No participants'),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

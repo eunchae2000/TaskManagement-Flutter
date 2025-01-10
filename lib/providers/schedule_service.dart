@@ -96,7 +96,7 @@ class ScheduleService {
         throw Exception('Failed to log out');
       }
     } catch (e) {
-      print('Error during logout: $e');
+      throw Exception('Failed to log out $e');
     }
   }
 
