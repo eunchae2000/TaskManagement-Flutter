@@ -694,4 +694,42 @@ class ScheduleService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> searchTasks(String query) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/searchTask'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'query': query}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success'] == true) {
+        return List<Map<String, dynamic>>.from(data['tasks']);
+      } else {
+        throw Exception('No tasks found');
+      }
+    } else {
+      throw Exception('Failed to load tasks');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTasksByDate(String date) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/taskDate'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'date': date}),
+    );
+
+    try {
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return List<Map<String, dynamic>>.from(data['tasks']);
+      } else {
+        throw Exception('Failed to fetch tasks: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching tasks: $e');
+    }
+  }
+
 }
