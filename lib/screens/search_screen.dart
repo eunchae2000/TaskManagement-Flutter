@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:task_management/providers/schedule_service.dart';
@@ -19,12 +20,11 @@ class _SearchScreenState extends State<SearchScreen>
   List<Map<String, dynamic>> filterFriends = [];
   final TextEditingController _searchMember = TextEditingController();
 
-  List<Map<String, dynamic>> tasks = [];
+  List<Map<String, dynamic>> tasks = [];   // all task search
   List<Map<String, dynamic>> filterTasks = [];
   final TextEditingController _searchTask = TextEditingController();
-  String searchQuery = '';
 
-  List<dynamic> _tasks = [];
+  List<dynamic> _tasks = []; // search task for date
   DateTime? _selectedDate;
 
   Future<void> _selectDate(BuildContext context) async {
@@ -42,6 +42,7 @@ class _SearchScreenState extends State<SearchScreen>
       await _fetchTasks();
     }
   }
+
 
   Future<void> _fetchTasks() async {
     if (_selectedDate == null) return;
@@ -138,16 +139,6 @@ class _SearchScreenState extends State<SearchScreen>
     super.dispose();
   }
 
-  Future<List<String>> fetchMembers() async {
-    await Future.delayed(Duration(seconds: 2));
-    return ['Member 1', 'Member 2', 'Member 3'];
-  }
-
-  Future<List<String>> fetchInvites() async {
-    await Future.delayed(Duration(seconds: 2));
-    return ['Invite 1', 'Invite 2', 'Invite 3'];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,12 +170,12 @@ class _SearchScreenState extends State<SearchScreen>
                   onChanged: _filterFriends,
                   decoration: customInputDecoration(
                     hintText: 'Search Members',
-                    labelText: 'Search Members',
                     suffixIcon: Icon(
                       Icons.search,
                       color: Color(0xffff4700),
                     ),
                   ),
+                  style: TextStyle(fontSize: 20),
                 ),
               ),
               Expanded(
@@ -213,18 +204,52 @@ class _SearchScreenState extends State<SearchScreen>
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                child: TextField(
-                  controller: _searchTask,
-                  onChanged: searchTasks,
-                  decoration: customInputDecoration(
-                    hintText: 'Search Tasks',
-                    labelText: 'Search Task',
-                    suffixIcon: Icon(
-                      Icons.search,
-                      color: Color(0xffff4700),
-                    ),
-                  ),
-                ),
+                child: isSentTab
+                    ? TextField(
+                        controller: _searchTask,
+                        onChanged: searchTasks,
+                        decoration: customInputDecoration(
+                          hintText: 'Search Tasks',
+                          suffixIcon: Icon(
+                            Icons.search,
+                            color: Color(0xffff4700),
+                          ),
+                        ),
+                        style: TextStyle(fontSize: 20),
+                      )
+                    : SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            _selectDate(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: Color(0xffffe7d6),
+                            foregroundColor: Color(0xffff4700),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Select Date',
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(width: 20),
+                              Icon(
+                                Icons.date_range_rounded,
+                                color: Color(0xffff4700),
+                                size: 23,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
               ),
               Padding(
                 padding: EdgeInsets.only(left: 15, right: 15, top: 10),
@@ -276,12 +301,11 @@ class _SearchScreenState extends State<SearchScreen>
                         ),
                       ),
                     ),
-                    Expanded(
-                        child: ElevatedButton(
-                            onPressed: () => _selectDate(context),
-                            child: Text('select date')))
                   ],
                 ),
+              ),
+              SizedBox(
+                height: 20,
               ),
               Expanded(
                 child: isSentTab ? _buildTask() : _buildDate(),
@@ -327,15 +351,18 @@ class _SearchScreenState extends State<SearchScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: Color(0xfffff4ec),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Text(task['task_dateTime']),
+                                Text(
+                                  task['task_dateTime'],
+                                  style: TextStyle(
+                                      color: Color(0xff637899),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15),
                                 ),
                                 Text(task['task_title'],
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff637899),
+                                        fontSize: 18)),
                               ],
                             ),
                           ),
@@ -344,7 +371,11 @@ class _SearchScreenState extends State<SearchScreen>
                             children: [
                               Container(
                                 padding: EdgeInsets.only(left: 5, right: 5),
-                                child: Text('${task['task_description']}'),
+                                child: Text(
+                                  '${task['task_description']}',
+                                  style: TextStyle(
+                                      color: Color(0xff8aade1), fontSize: 15),
+                                ),
                               ),
                               Wrap(
                                 spacing: 10,
@@ -360,6 +391,10 @@ class _SearchScreenState extends State<SearchScreen>
                                 ],
                               ),
                             ],
+                          ),
+                          trailing: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Color(0xfff3b19a),
                           ),
                           onTap: () {
                             Navigator.push(
@@ -384,31 +419,77 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   Widget _buildDate() {
+    if (_tasks.isEmpty) {
+      return Expanded(
+        child: Center(
+          child: Text(
+            'No tasks for selected date',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
+    }
+
     return Expanded(
-      child: _tasks.isEmpty
-          ? Center(
-              child: Text(
-                'No tasks for selected date',
-                style: TextStyle(fontSize: 16),
-              ),
-            )
-          : ListView.builder(
+      child: Column(
+        children: [
+          Text(
+            _selectedDate != null
+                ? DateFormat('MMMM d, yyyy').format(_selectedDate!)
+                : 'No date selected',
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff637899)),
+          ),
+          SizedBox(height: 10),
+          Expanded(
+            child: ListView.builder(
               itemCount: _tasks.length,
               itemBuilder: (context, index) {
                 final task = _tasks[index];
-                final participantNames =
+                final List<String> participantNames =
                     (task['participant_name'] ?? '').split(',');
 
-                return Card(
-                  margin: EdgeInsets.all(8),
+                return Container(
+                  margin: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                  decoration: BoxDecoration(
+                    color: Color(0xffddf2ff),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: ListTile(
-                    title: Text(task['task_title']),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                    title: Container(
+                      padding: EdgeInsets.only(left: 5, right: 5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            task['task_dateTime'],
+                            style: TextStyle(
+                                color: Color(0xff637899),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15),
+                          ),
+                          Text(task['task_title'],
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff637899),
+                                  fontSize: 18)),
+                        ],
+                      ),
+                    ),
                     subtitle: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
                           padding: EdgeInsets.only(left: 5, right: 5),
-                          child: Text('${task['task_description']}'),
+                          child: Text(
+                            '${task['task_description']}',
+                            style: TextStyle(
+                                color: Color(0xff8aade1), fontSize: 15),
+                          ),
                         ),
                         Wrap(
                           spacing: 10,
@@ -425,23 +506,39 @@ class _SearchScreenState extends State<SearchScreen>
                         ),
                       ],
                     ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Color(0xfff3b19a),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailScreen(
+                            task: task,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 );
               },
             ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 InputDecoration customInputDecoration({
-  required String labelText,
   required String hintText,
   Widget? suffixIcon,
 }) {
   return InputDecoration(
-    labelText: labelText,
     hintText: hintText,
     suffixIcon: suffixIcon,
+    hintStyle: TextStyle(fontSize: 20),
     filled: true,
     fillColor: Color(0xffffe7d6),
     border: OutlineInputBorder(

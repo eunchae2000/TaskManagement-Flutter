@@ -723,6 +723,7 @@ class ScheduleService {
     try {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print(data);
         return List<Map<String, dynamic>>.from(data['tasks']);
       } else {
         throw Exception('Failed to fetch tasks: ${response.body}');
