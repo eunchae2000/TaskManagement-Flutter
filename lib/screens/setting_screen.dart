@@ -51,7 +51,6 @@ class _SettingScreenState extends State<SettingScreen> {
       setState(() {
         user = fetchedUser;
       });
-      print(user);
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

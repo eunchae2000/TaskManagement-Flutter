@@ -156,54 +156,52 @@ class _InvitedTaskMemberScreenState extends State<InvitedTaskMemberScreen> {
             SizedBox(
               height: 30,
             ),
-            Container(
-              child: Center(
-                child: Column(
-                  children: [
-                    Text('pending'),
-                    Wrap(
-                      spacing: 7.0,
-                      runSpacing: 1.0,
-                      children: friends['taskResult'] != null
-                          ? List<Widget>.from(friends['taskResult']
-                              .where((member) => member['status'] == 'pending')
-                              .map((member) {
-                              return Chip(
-                                label: Text(member['user_name'] ?? 'Unknown'),
-                                backgroundColor: Color(0xffe9e9e9),
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                      color: Color(0xffe9e9e9), width: 1.5),
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                padding: EdgeInsets.symmetric(horizontal: 5.0),
-                              );
-                            }).toList())
-                          : [],
-                    ),
-                    Text('accepted'),
-                    Wrap(
-                      spacing: 7.0,
-                      runSpacing: 1.0,
-                      children: friends['taskResult'] != null
-                          ? List<Widget>.from(friends['taskResult']
-                              .where((member) => member['status'] == 'accepted')
-                              .map((member) {
-                              return Chip(
-                                label: Text(member['user_name'] ?? 'Unknown'),
-                                backgroundColor: Color(0xffddf2ff),
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                      color: Color(0xff8aade1), width: 1.5),
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                padding: EdgeInsets.symmetric(horizontal: 5.0),
-                              );
-                            }).toList())
-                          : [],
-                    ),
-                  ],
-                ),
+            Center(
+              child: Column(
+                children: [
+                  Text('pending'),
+                  Wrap(
+                    spacing: 7.0,
+                    runSpacing: 1.0,
+                    children: friends['taskResult'] != null
+                        ? List<Widget>.from(friends['taskResult']
+                            .where((member) => member['status'] == 'pending')
+                            .map((member) {
+                            return Chip(
+                              label: Text(member['user_name'] ?? 'Unknown'),
+                              backgroundColor: Color(0xffe9e9e9),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                    color: Color(0xffe9e9e9), width: 1.5),
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 5.0),
+                            );
+                          }).toList())
+                        : [],
+                  ),
+                  Text('accepted'),
+                  Wrap(
+                    spacing: 7.0,
+                    runSpacing: 1.0,
+                    children: friends['taskResult'] != null
+                        ? List<Widget>.from(friends['taskResult']
+                            .where((member) => member['status'] == 'accepted')
+                            .map((member) {
+                            return Chip(
+                              label: Text(member['user_name'] ?? 'Unknown'),
+                              backgroundColor: Color(0xffddf2ff),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                    color: Color(0xff8aade1), width: 1.5),
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 5.0),
+                            );
+                          }).toList())
+                        : [],
+                  ),
+                ],
               ),
             ),
             SizedBox(
