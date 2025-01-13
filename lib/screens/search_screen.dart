@@ -19,11 +19,11 @@ class _SearchScreenState extends State<SearchScreen>
   List<Map<String, dynamic>> filterFriends = [];
   final TextEditingController _searchMember = TextEditingController();
 
-  List<Map<String, dynamic>> tasks = [];   // all task search
+  List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> filterTasks = [];
   final TextEditingController _searchTask = TextEditingController();
 
-  List<dynamic> _tasks = []; // search task for date
+  List<dynamic> _tasks = [];
   DateTime? _selectedDate;
 
   Future<void> _selectDate(BuildContext context) async {

@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ScheduleService {
-  final String baseUrl = 'http://10.0.2.2:8000';
+  final String baseUrl = 'http://192.168.35.148:8000';
 
   Future<List<dynamic>> fetchSchedules() async {
     final response = await http.get(Uri.parse('$baseUrl/schedules'));
@@ -26,8 +27,8 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> register(
-      String userName, String userEmail, String userPassword) async {
+  Future<Map<String, dynamic>> register(String userName, String userEmail,
+      String userPassword) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register'),
       headers: {'Content-Type': 'application/json'},
@@ -52,8 +53,8 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> login(
-      String userEmail, String userPassword) async {
+  Future<Map<String, dynamic>> login(String userEmail,
+      String userPassword) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
@@ -157,16 +158,14 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> addTask(
-    List<String> friendNames,
-    String taskTitle,
-    String taskDescription,
-    String taskStartTime,
-    String taskEndTime,
-    String taskDateTime,
-    int categoryId,
-      List<Map<String, String>> plans
-  ) async {
+  Future<Map<String, dynamic>> addTask(List<String> friendNames,
+      String taskTitle,
+      String taskDescription,
+      String taskStartTime,
+      String taskEndTime,
+      String taskDateTime,
+      int categoryId,
+      List<Map<String, String>> plans) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? userId = prefs.getString('user_id');
@@ -218,8 +217,7 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> updateTask(
-      int taskId,
+  Future<Map<String, dynamic>> updateTask(int taskId,
       String taskTitle,
       String taskDescription,
       String taskStartTime,
@@ -227,8 +225,7 @@ class ScheduleService {
       String taskDateTime,
       int categorieId,
       List<String> friendNames,
-      List<Map<String, dynamic>> plans,
-      ) async {
+      List<Map<String, dynamic>> plans,) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
     try {
@@ -312,10 +309,10 @@ class ScheduleService {
 
   Future<List<Map<String, dynamic>>> searchFriends(String query) async {
     final response =
-        await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
+    await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
     if (response.statusCode == 200) {
       List<Map<String, dynamic>> friends =
-          List<Map<String, dynamic>>.from(json.decode(response.body));
+      List<Map<String, dynamic>>.from(json.decode(response.body));
       return friends;
     } else {
       throw Exception('Failed to load friends');
@@ -568,7 +565,6 @@ class ScheduleService {
   }
 
   Future<List<Map<String, dynamic>>> fetchTaskToday(String today) async {
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
 
@@ -601,6 +597,7 @@ class ScheduleService {
       throw Exception('Server error: ${response.statusCode}');
     }
   }
+
   Future<Map<String, dynamic>> fetchAvailableFriends(int taskId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
@@ -613,8 +610,10 @@ class ScheduleService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
 
-        List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(data['friendResult']);
-        List<Map<String, dynamic>> tasks = List<Map<String, dynamic>>.from(data['taskResult']);
+        List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(
+            data['friendResult']);
+        List<Map<String, dynamic>> tasks = List<Map<String, dynamic>>.from(
+            data['taskResult']);
 
         return {
           'friendResult': friends,
@@ -622,17 +621,16 @@ class ScheduleService {
         };
       } else {
         throw Exception(
-            'Failed to load available friends. Status code: ${response.statusCode}');
+            'Failed to load available friends. Status code: ${response
+                .statusCode}');
       }
     } catch (error) {
       throw error;
     }
   }
 
-  Future<Map<String, dynamic>> addTaskInvitation(
-      List<String> friendNames,
-      int taskId,
-      ) async {
+  Future<Map<String, dynamic>> addTaskInvitation(List<String> friendNames,
+      int taskId,) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? userId = prefs.getString('user_id');
@@ -693,6 +691,47 @@ class ScheduleService {
       throw Exception('Failed to fetch participants and plans');
     }
   }
+
+  Future<Map<String, dynamic>> editUser(
+      String userName,
+      String email,
+      String phone,
+      File? profile,
+      String gender,
+      String birthday,
+      ) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+
+    final uri = Uri.parse('$baseUrl/edit-user/$userId');
+    final request = http.MultipartRequest('PUT', uri);
+
+    request.fields['user_name'] = userName;
+    request.fields['user_email'] = email;
+    request.fields['user_phone'] = phone;
+    request.fields['user_gender'] = gender;
+    request.fields['user_birthday'] = birthday;
+
+    if (profile != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'user_profile',
+        profile.path,
+      ));
+    }
+
+    request.headers.addAll({'Content-Type': 'multipart/form-data'});
+
+    final streamedResponse = await request.send();
+
+    if (streamedResponse.statusCode == 200) {
+      final responseBody = await streamedResponse.stream.bytesToString();
+      final Map<String, dynamic> responseData = jsonDecode(responseBody);
+      return responseData;
+    } else {
+      throw Exception('Failed to update user profile');
+    }
+  }
+
 
   Future<List<Map<String, dynamic>>> searchTasks(String query) async {
     final response = await http.post(
