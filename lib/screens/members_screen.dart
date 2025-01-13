@@ -479,7 +479,19 @@ class _MemberScreenState extends State<MembersScreen>
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(invite['user_name'] ?? 'Unknown'),
+                      Row(
+                        children: [
+                          Text(invite['user_name'] ?? 'Unknown'),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            '[${invite['task_title'] ?? ''}]',
+                            style: TextStyle(
+                                fontSize: 11, color: Color(0xff8aade1)),
+                          )
+                        ],
+                      ),
                       Text(
                         formatTimeAgo(invite['created_at']),
                         style: TextStyle(
