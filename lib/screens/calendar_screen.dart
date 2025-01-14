@@ -260,20 +260,52 @@ class _WeekCalendarState extends State<CalendarScreen> {
                     size: 25,
                   ),
                 ),
-                IconButton(
-                    onPressed: () {
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert_rounded,
+                    color: Color(0xffffe7d6),
+                    size: 25,
+                  ),
+                  onSelected: (String value) {
+                    if (value == 'register') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MembersScreen(),
-                        ),
+                            builder: (context) => AddScheduleScreen()),
                       );
-                    },
-                    icon: Icon(
-                      Icons.more_vert_rounded,
-                      color: Color(0xffffe7d6),
-                      size: 25,
-                    )),
+                    } else if (value == 'manage') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddScheduleScreen()),
+                      );
+                    }
+                  },
+                  offset: Offset(0, 50),
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                        value: 'register',
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Category Register',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Icon(Icons.add_rounded)
+                          ],
+                        )),
+                    PopupMenuDivider(),
+                    PopupMenuItem<String>(
+                      value: 'manage',
+                      child: Text(
+                        'Category manage',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ]),
@@ -395,15 +427,17 @@ class _WeekCalendarState extends State<CalendarScreen> {
                                 color: Colors.white,
                               ),
                             ),
-                            SizedBox(height: 10,),
+                            SizedBox(
+                              height: 10,
+                            ),
                             Text(
                               task['task_title']!,
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
-                            ),Text(
+                            ),
+                            Text(
                               task['task_description']!,
-                              style: TextStyle(
-                                  fontSize: 15),
+                              style: TextStyle(fontSize: 15),
                             ),
                           ],
                         ),

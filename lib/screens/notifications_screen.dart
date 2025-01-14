@@ -199,46 +199,57 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildNotificationTile(Map<String, dynamic> notification) {
     return ListTile(
-      leading: Icon(
-        notification['notifications_type'] == 'task'
-            ? Icons.task_alt_rounded
-            : Icons.account_circle_rounded,
-        color: Color(0xffff4700),
-        size: 50,
-      ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      leading: notification['user_profile'] == null
+          ? Icon(
+              Icons.account_circle,
+              size: 50,
+              color: Color(0xffffe7d6),
+            )
+          : ClipOval(
+              child: Image.network(
+                notification['user_profile']!,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              ),
+            ),
+      title: Wrap(
         children: [
-          Text(notification['sender_name'] ?? 'Unknown'),
-          Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Color(0xffd9d9d9),
-                  shape: BoxShape.circle,
+          RichText(
+            text: TextSpan(
+              style: TextStyle(color: Colors.black, fontSize: 15),
+              children: [
+                TextSpan(text: 'To '),
+                TextSpan(
+                  text: notification['sender_name'] ?? 'Unknown',
+                  style: TextStyle(color: Color(0xff8aade1), fontWeight: FontWeight.bold),
                 ),
-              ),
-              SizedBox(width: 5),
-              Text(
-                formatTimeAgo(notification['notifications_createdAt']),
-                style: TextStyle(fontSize: 10),
-              ),
-            ],
+                TextSpan(
+                  text: notification['notifications_type'] == 'task'
+                      ? (notification['notifications_action'] == 'request'
+                      ? ' sent a task participation request'
+                      : notification['notifications_action'] == 'response'
+                      ? ' received a response to your task participation'
+                      : ' task action not recognized')
+                      : ' sent a member request',
+                ),
+              ],
+            ),
           ),
+
         ],
       ),
       subtitle: Text(
-        notification['notifications_type'] == 'task'
-            ? (notification['notifications_action'] == 'request'
-                ? 'Sent a task participation request'
-                : notification['notifications_action'] == 'response'
-                    ? 'Received a response to your task participation'
-                    : 'Task action not recognized')
-            : 'Sent a member request',
+        formatTimeAgo(notification['notifications_createdAt']),
+        style: TextStyle(fontSize: 10),
       ),
-      trailing: Text(notification['notifications_status'] ?? 'No Status'),
+      trailing: notification['notifications_status'] == 'unread'
+          ? Icon(
+              Icons.circle,
+              color: Color(0xffff4700),
+              size: 8,
+            )
+          : SizedBox.shrink(),
     );
   }
 }
