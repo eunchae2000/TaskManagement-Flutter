@@ -6,23 +6,99 @@ class NotificationsScreen extends StatefulWidget {
   _NotificationsScreenState createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen>
+    with SingleTickerProviderStateMixin {
   final ScheduleService _scheduleService = ScheduleService();
   Future<List<dynamic>>? _notificationsFuture;
-  bool showFullTaskList = false;
-  bool showFullFriendList = false;
+  late TabController _tabController;
+  final Map<String, int> _unreadCounts = {
+    'all': 0,
+    'task': 0,
+    'friends': 0,
+  };
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     _notificationsFuture = _scheduleService.fetchNotifications();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
+  }
+
+  void _onTabSelected(int index) {
+    String notificationType = '';
+
+    if (index == 0) {
+      notificationType = 'task';
+    } else if (index == 1) {
+      notificationType = 'friends';
+    }
+
+    _scheduleService.notificationsAsRead(notificationType);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildNotificationList(),
+      appBar: AppBar(
+        title: Text('Notifications'),
+        bottom: TabBar(
+          onTap: _onTabSelected,
+          controller: _tabController,
+          tabs: [
+            _buildTab('All', _unreadCounts['all']!),
+            _buildTab('Task', _unreadCounts['task']!),
+            _buildTab('Member', _unreadCounts['friends']!),
+          ],
+          indicatorColor: Color(0xffff4700),
+          labelColor: Color(0xffff4700),
+          unselectedLabelColor: Color(0xff637899),
+        ),
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: _notificationsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No notifications found'));
+          } else {
+            _calculateUnreadCounts(snapshot.data!);
+
+            return TabBarView(
+              controller: _tabController,
+              children: [
+                _buildNotificationList(snapshot.data!, 'all'),
+                _buildNotificationList(snapshot.data!, 'task'),
+                _buildNotificationList(snapshot.data!, 'friends'),
+              ],
+            );
+          }
+        },
+      ),
     );
+  }
+
+  void _calculateUnreadCounts(List<dynamic> notifications) {
+    _unreadCounts['all'] = notifications
+        .where(
+            (notification) => notification['notifications_status'] == 'unread')
+        .length;
+    _unreadCounts['task'] = notifications
+        .where((notification) =>
+            notification['notifications_type'] == 'task' &&
+            notification['notifications_status'] == 'unread')
+        .length;
+    _unreadCounts['friends'] = notifications
+        .where((notification) =>
+            notification['notifications_type'] == 'friends' &&
+            notification['notifications_status'] == 'unread')
+        .length;
   }
 
   String formatTimeAgo(String notificationCreateAt) {
@@ -43,161 +119,55 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  Widget _buildNotificationList() {
-    return FutureBuilder<List<dynamic>>(
-      future: _notificationsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No notifications found'));
-        } else {
-          return _buildListView(snapshot.data!);
-        }
-      },
+  Widget _buildTab(String label, int unreadCount) {
+    return Tab(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Text('${label}'),
+          ),
+          if (unreadCount > 0)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Icon(
+                Icons.circle_rounded,
+                size: 7,
+                color: Colors.red,
+              ),
+            ),
+        ],
+      ),
     );
   }
 
-  Widget _buildListView(List<dynamic> notifications) {
-    final taskNotifications = notifications
-        .where((notification) => notification['notifications_type'] == 'task')
-        .toList();
-    final friendNotifications = notifications
-        .where(
-            (notification) => notification['notifications_type'] == 'friends')
+  Widget _buildNotificationList(List<dynamic> notifications, String type) {
+    final filteredNotifications = notifications
+        .where((notification) =>
+            type == 'all' || notification['notifications_type'] == type)
         .toList();
 
-    if (taskNotifications.isEmpty && friendNotifications.isEmpty) {
-      return const Center(
-        child: Text(
-          'No notifications available',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      );
+    if (filteredNotifications.isEmpty) {
+      return const Center(child: Text('No notifications'));
     }
 
     return ListView(
-      children: [
-        _buildNotificationSection(
-          title: 'Tasks',
-          notifications: taskNotifications,
-          showFullList: showFullTaskList,
-          toggleShowFullList: () {
-            setState(() {
-              showFullTaskList = !showFullTaskList;
-            });
-          },
-        ),
-        _buildNotificationSection(
-          title: 'Friends',
-          notifications: friendNotifications,
-          showFullList: showFullFriendList,
-          toggleShowFullList: () {
-            setState(() {
-              showFullFriendList = !showFullFriendList;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotificationSection({
-    required String title,
-    required List<dynamic> notifications,
-    required bool showFullList,
-    required VoidCallback toggleShowFullList,
-  }) {
-    final unreadCount = notifications
-        .where(
-            (notification) => notification['notifications_status'] == 'unread')
-        .length;
-
-    if (notifications.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      children: filteredNotifications.map<Widget>((notification) {
+        return Column(
           children: [
-            Text(
-              title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'No $title notifications available',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
+            _buildNotificationTile(notification),
+            Divider(),
           ],
-        ),
-      );
-    }
-
-    final displayedNotifications =
-        showFullList ? notifications : notifications.take(3).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 15,
-            right: 15,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  if (notifications.length > 3)
-                    IconButton(
-                      onPressed: toggleShowFullList,
-                      icon: Icon(
-                        showFullList
-                            ? Icons.expand_less
-                            : Icons.more_horiz_rounded,
-                        size: 24,
-                      ),
-                    )
-                ],
-              ),
-              if (unreadCount > 0) _buildUnreadCountCircle(unreadCount),
-            ],
-          ),
-        ),
-        ...displayedNotifications.map<Widget>(
-            (notification) => _buildNotificationTile(notification)),
-      ],
-    );
-  }
-
-  Widget _buildUnreadCountCircle(int count) {
-    return Container(
-      width: 45,
-      padding: const EdgeInsets.all(4.0),
-      decoration: BoxDecoration(
-        color: Color(0xffFF4700),
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Text(
-        '$count',
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
-        textAlign: TextAlign.center,
-      ),
+        );
+      }).toList(),
     );
   }
 
   Widget _buildNotificationTile(Map<String, dynamic> notification) {
+    final isTask = notification['notifications_type'] == 'task';
+
     return ListTile(
       leading: notification['user_profile'] == null
           ? Icon(
@@ -213,35 +183,39 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 fit: BoxFit.cover,
               ),
             ),
-      title: Wrap(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          RichText(
-            text: TextSpan(
-              style: TextStyle(color: Colors.black, fontSize: 15),
-              children: [
-                TextSpan(text: 'To '),
-                TextSpan(
-                  text: notification['sender_name'] ?? 'Unknown',
-                  style: TextStyle(color: Color(0xff8aade1), fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: notification['notifications_type'] == 'task'
-                      ? (notification['notifications_action'] == 'request'
-                      ? ' sent a task participation request'
-                      : notification['notifications_action'] == 'response'
-                      ? ' received a response to your task participation'
-                      : ' task action not recognized')
-                      : ' sent a member request',
-                ),
-              ],
-            ),
+          Text(
+            '${notification['sender_name']}',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
-
+          Row(
+            children: [
+              Icon(
+                Icons.circle_rounded,
+                size: 6,
+                color: Colors.grey,
+              ),
+              SizedBox(
+                width: 8,
+              ),
+              Text(
+                formatTimeAgo(notification['notifications_createdAt']),
+                style: TextStyle(fontSize: 10),
+              ),
+            ],
+          )
         ],
       ),
       subtitle: Text(
-        formatTimeAgo(notification['notifications_createdAt']),
-        style: TextStyle(fontSize: 10),
+        isTask
+            ? (notification['notifications_action'] == 'request'
+                ? 'sent a task participation request'
+                : notification['notifications_action'] == 'response'
+                    ? ' received a response to your task participation'
+                    : ' task action not recognized')
+            : ' sent a member request',
       ),
       trailing: notification['notifications_status'] == 'unread'
           ? Icon(

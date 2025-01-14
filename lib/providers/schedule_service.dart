@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ScheduleService {
   final String baseUrl = 'http://10.0.2.2:8000';
 
+
   Future<List<dynamic>> fetchSchedules() async {
     final response = await http.get(Uri.parse('$baseUrl/schedules'));
     if (response.statusCode == 200) {
@@ -692,18 +693,40 @@ class ScheduleService {
     }
   }
 
+  Future<String?> uploadProfileImage(File imageFile) async {
+    try {
+      final uri = Uri.parse("$baseUrl/upload");
+      final request = http.MultipartRequest('POST', uri);
+      request.files.add(await http.MultipartFile.fromPath('profilePhoto', imageFile.path));
+      request.headers.addAll({'Content-Type': 'multipart/form-data'});
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        final decodedResponse = jsonDecode(responseBody);
+        return decodedResponse['imageUrl'];
+      } else {
+        print("Failed to upload image. Status Code: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error uploading image: $e");
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>> editUser(
       String userName,
       String email,
       String phone,
-      File? profile,
+      File? profilePhoto,
       String gender,
       String birthday,
       ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
 
-    final uri = Uri.parse('$baseUrl/edit-user/$userId');
+    final uri = Uri.parse('http://your-server.com/edit-user/$userId');
     final request = http.MultipartRequest('PUT', uri);
 
     request.fields['user_name'] = userName;
@@ -712,25 +735,23 @@ class ScheduleService {
     request.fields['user_gender'] = gender;
     request.fields['user_birthday'] = birthday;
 
-    if (profile != null) {
+    if (profilePhoto != null) {
       request.files.add(await http.MultipartFile.fromPath(
-        'user_profile',
-        profile.path,
+        'profilePhoto',
+        profilePhoto.path,
       ));
     }
 
-    request.headers.addAll({'Content-Type': 'multipart/form-data'});
+    final response = await request.send();
 
-    final streamedResponse = await request.send();
-
-    if (streamedResponse.statusCode == 200) {
-      final responseBody = await streamedResponse.stream.bytesToString();
-      final Map<String, dynamic> responseData = jsonDecode(responseBody);
-      return responseData;
+    if (response.statusCode == 200) {
+      final responseBody = await response.stream.bytesToString();
+      return jsonDecode(responseBody);
     } else {
       throw Exception('Failed to update user profile');
     }
   }
+
 
 
   Future<List<Map<String, dynamic>>> searchTasks(String query) async {
@@ -768,6 +789,33 @@ class ScheduleService {
       }
     } catch (e) {
       throw Exception('Error fetching tasks: $e');
+    }
+  }
+
+
+
+  Future<Map<String, dynamic>> notificationsAsRead(String notificationType) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/notifications/read'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'user_id': userId,
+          'notification_type': notificationType,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to fetch notifications: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching notifications: $e');
     }
   }
 
