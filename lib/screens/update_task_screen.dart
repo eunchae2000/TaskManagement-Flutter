@@ -1,5 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:task_management/providers/schedule_provider.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/detail_screen.dart';
 
@@ -27,6 +29,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
 
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
+  late DateTime _selectedDate;
 
   List<String> _friendNames = [];
   List<Map<String, TextEditingController>> _plans = [];
@@ -50,9 +53,70 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     _friendNames = widget.task['members'] != null
         ? List<String>.from(widget.task['members'])
         : [];
+    _selectedDate = widget.task['task_dateTime'] is String
+        ? _parseDateString(widget.task['task_dateTime'])
+        : widget.task['task_dateTime'] is DateTime
+            ? widget.task['task_dateTime']
+            : DateTime.now();
+
     _fetchPlan();
     _loadCategories();
     _addNewPlan();
+  }
+
+  String getFormattedDate(DateTime date) {
+    return '${date.year}-${date.month}-${date.day}';
+  }
+
+  DateTime _parseDateString(String dateString) {
+    final parts = dateString.split('-');
+    if (parts.length == 3) {
+      final year = parts[0];
+      final month = parts[1].padLeft(2, '0');
+      final day = parts[2].padLeft(2, '0');
+      final formattedDate = '$year-$month-$day';
+      return DateTime.parse(formattedDate);
+    }
+    return DateTime.now();
+  }
+
+  DateTime get _startOfWeek =>
+      _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
+
+  final List<String> weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+  void _previousWeek() {
+    setState(() {
+      _selectedDate = _selectedDate.subtract(Duration(days: 7));
+    });
+  }
+
+  void _nextWeek() {
+    setState(() {
+      _selectedDate = _selectedDate.add(Duration(days: 7));
+    });
+  }
+
+  List<DateTime> getWeekDates() {
+    return List.generate(7, (index) => _startOfWeek.add(Duration(days: index)));
+  }
+
+  String _getMonthName(int month) {
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    return monthNames[month - 1];
   }
 
   void _selectPlanTime(
@@ -64,7 +128,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
     );
 
     if (pickedTime != null) {
-      if(!mounted) return;
+      if (!mounted) return;
       final formattedTime = pickedTime.format(context);
       setState(() {
         if (isStartTime) {
@@ -134,7 +198,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
       setState(() {
         _isLoading = false;
       });
-      if(!mounted) return;
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to fetch plans: $error'),
@@ -189,7 +253,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
       });
 
       if (response['success']) {
-        if(!mounted) return;
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Task updated successfully!'),
@@ -197,7 +261,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
           ),
         );
       } else {
-        if(!mounted) return;
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: ${response['message']}'),
@@ -220,6 +284,9 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<DateTime> weekDay = getWeekDates();
+    final selectedDate = Provider.of<ScheduleProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
           title: Row(
@@ -243,8 +310,14 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                           'Complete',
                           style: TextStyle(color: Colors.black),
                         ),
-                        SizedBox(width: 5,),
-                        Icon(Icons.check_rounded, size: 15, color: Color(0xffff4700),),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Icon(
+                          Icons.check_rounded,
+                          size: 15,
+                          color: Color(0xffff4700),
+                        ),
                       ],
                     ))
         ],
@@ -254,6 +327,91 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              GestureDetector(
+                onTap: () => _selectedDate,
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 17.0, vertical: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                                onPressed: () => _previousWeek(),
+                                icon: Icon(Icons.keyboard_arrow_left)),
+                            Text(
+                              '${_selectedDate.year}, ${_getMonthName(_selectedDate.month)}',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                                onPressed: () => _nextWeek(),
+                                icon: Icon(Icons.keyboard_arrow_right)),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(7, (index) {
+                          final DateTime currentDay = weekDay[index];
+                          final isSelected = currentDay.day ==
+                                  selectedDate.selectedDate.day &&
+                              currentDay.month ==
+                                  selectedDate.selectedDate.month &&
+                              currentDay.year == selectedDate.selectedDate.year;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedDate.setSelectedDate(currentDay);
+                                _selectedDate = currentDay;
+                                _taskDateTimeController.text = getFormattedDate(currentDay);
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(13),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Color(0xffff4700)
+                                    : Colors.transparent,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    weekDays[index],
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black38,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  Text(
+                                    currentDay.day.toString(),
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -311,12 +469,6 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                 ],
               ),
               SizedBox(height: 20),
-
-              TextField(
-                controller: _taskDateTimeController,
-                decoration:
-                    InputDecoration(labelText: 'Date (e.g., 2025-01-10)'),
-              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -388,7 +540,9 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/edit_profile_screen.dart';
+import 'package:task_management/screens/faq_screen.dart';
 import 'package:task_management/screens/login_screen.dart';
 import 'package:task_management/widgets/setting_textButton.dart';
 
@@ -125,7 +126,9 @@ class _SettingScreenState extends State<SettingScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => EditProfileScreen(user: user,)));
+                                    builder: (context) => EditProfileScreen(
+                                          user: user,
+                                        )));
                           },
                           leadingIcon: Icons.person_rounded,
                           text: 'Edit User'),
@@ -189,7 +192,12 @@ class _SettingScreenState extends State<SettingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CustomTextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FAQScreen()));
+                          },
                           leadingIcon: Icons.help_rounded,
                           text: 'FAQ'),
                       CustomTextButton(
