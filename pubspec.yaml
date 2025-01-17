@@ -85,7 +85,24 @@ flutter:
     - family: FredokaLight
       fonts:
         - asset: assets/fonts/Fredoka-Light.ttf
-
+    - family: NunitoBold
+      fonts:
+        - asset: assets/fonts/Nunito-Bold.ttf
+    - family: NunitoSemiBold
+      fonts:
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+    - family: NunitoRegular
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+    - family: NunitoMedium
+      fonts:
+        - asset: assets/fonts/Nunito-Medium.ttf
+    - family: NunitoLight
+      fonts:
+        - asset: assets/fonts/Nunito-Light.ttf
+    - family: NunitoExtraBold
+      fonts:
+        - asset: assets/fonts/Nunito-ExtraBold.ttf
 
 
   # To add assets to your application, add an assets section, like this:

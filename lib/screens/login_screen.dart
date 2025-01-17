@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         title: null,
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -83,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   'Hello,\nthere!',
                   style: TextStyle(
                       fontSize: 50,
+                      fontFamily: 'NunitoExtraBold',
                       fontWeight: FontWeight.bold,
                       color: Color(0xff2f4858)),
                 ),
@@ -111,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black54,
-                      fontFamily: 'FredokaSemiBold',
+                      fontFamily: 'NunitoSemiBold',
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = navigateToSignUp,
@@ -144,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   text: 'Not a member? ',
                   style: TextStyle(
                     color: Colors.black,
-                    fontFamily: 'FredokaSemiBold',
+                    fontFamily: 'NunitoBold',
                   ),
                   children: <TextSpan>[
                     TextSpan(

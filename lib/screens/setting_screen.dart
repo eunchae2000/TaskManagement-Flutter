@@ -3,6 +3,7 @@ import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/edit_profile_screen.dart';
 import 'package:task_management/screens/faq_screen.dart';
 import 'package:task_management/screens/login_screen.dart';
+import 'package:task_management/screens/send_feedback_screen.dart';
 import 'package:task_management/widgets/setting_textButton.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -201,7 +202,13 @@ class _SettingScreenState extends State<SettingScreen> {
                           leadingIcon: Icons.help_rounded,
                           text: 'FAQ'),
                       CustomTextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        SendFeedbackScreen()));
+                          },
                           leadingIcon: Icons.feedback_rounded,
                           text: 'Send Feedback'),
                       CustomTextButton(

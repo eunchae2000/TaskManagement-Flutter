@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       title: 'Task Management',
       theme: ThemeData(
         primarySwatch: Colors.amber,
-        fontFamily: 'FredokaRegular',
+        fontFamily: 'NunitoBold',
       ),
       home: LoginScreen(),
     );
@@ -44,13 +44,15 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     CalendarScreen(),
     SearchScreen(),
-    SettingScreen(),
     MembersScreen(),
     NotificationsScreen(),
+    SettingScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    print(_pages[_currentIndex]);
+    print(_currentIndex);
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
@@ -64,11 +66,11 @@ class _MainScreenState extends State<MainScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(Icons.home, 0),
-            _buildNavItem(Icons.search, 1),
-            _buildNavItem(Icons.settings, 2),
-            _buildNavItem(Icons.people, 3),
-            _buildNavItem(Icons.notifications, 4),
+            _buildNavItem(Icons.home_rounded, 0),
+            _buildNavItem(Icons.search_rounded, 1),
+            _buildNavItem(Icons.people_alt_rounded, 2),
+            _buildNavItem(Icons.notifications_rounded, 3),
+            _buildNavItem(Icons.settings_rounded, 4),
           ],
         ),
       ),
