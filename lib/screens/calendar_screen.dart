@@ -9,6 +9,9 @@ import 'package:task_management/screens/detail_screen.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CalendarScreen extends StatefulWidget {
+  final DateTime? date;
+  CalendarScreen({this.date});
+
   @override
   _WeekCalendarState createState() => _WeekCalendarState();
 }
@@ -144,25 +147,9 @@ class _WeekCalendarState extends State<CalendarScreen> {
       setState(() {
         tasks = updatedTasks;
       });
-
-      if (tasks.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('No tasks found for the selected category and date')),
-        );
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Successfully fetched ${tasks.length} tasks')),
-        );
-      }
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${error.toString()}')),
-      );
+      throw Exception(error);
     }
   }
 

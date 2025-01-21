@@ -59,10 +59,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
         friends = friendList;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Friend List Failed')));
-      }
+      if (mounted){}
     }
   }
 
@@ -74,8 +71,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       });
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('load Category Failed')));
       }
     }
   }
@@ -183,8 +178,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     final plans = _plans
         .map((plan) => {
               'plan_detail': plan['plan_detail']!.text,
-              'plan_startTime': _planStartTime!.format(context),
-              'plan_endTime': _planEndTime!.format(context),
+              'plan_startTime': _planStartTime?.format(context),
+              'plan_endTime': _planEndTime?.format(context),
             })
         .toList();
 
@@ -200,17 +195,13 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     );
     if (mounted) {
       if (result['success']) {
-        _showSnackBar('Task added successfully');
-        Navigator.pop(context);
-      } else {
-        _showSnackBar('Error: ${result['message']}');
+        Navigator.pop(context, _selectedDate);
       }
     }
   }
 
   bool _validateInputs() {
     if (titleController.text.isEmpty || descriptionController.text.isEmpty) {
-      _showSnackBar('Please complete all fields');
       return false;
     }
 
@@ -218,17 +209,9 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     final endMinutes = _endTime!.hour * 60 + _endTime!.minute;
 
     if (startMinutes >= endMinutes) {
-      _showSnackBar('End time must be after start time');
       return false;
     }
     return true;
-  }
-
-  void _showSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
-    }
   }
 
   @override
@@ -242,13 +225,9 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
           children: [
             TextButton(
                 onPressed: () {
-                  _addTask();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CalendarScreen(),
-                    ),
-                  );
+                  setState(() {
+                    _addTask();
+                  });
                 },
                 child: Row(
                   children: [

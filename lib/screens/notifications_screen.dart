@@ -167,6 +167,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
 
   Widget _buildNotificationTile(Map<String, dynamic> notification) {
     final isTask = notification['notifications_type'] == 'task';
+    print(isTask);
 
     return ListTile(
       leading: notification['user_profile'] == null

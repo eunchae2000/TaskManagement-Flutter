@@ -166,7 +166,7 @@ class ScheduleService {
       String taskEndTime,
       String taskDateTime,
       int categoryId,
-      List<Map<String, String>> plans) async {
+      List<Map<String, String?>> plans) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? userId = prefs.getString('user_id');
