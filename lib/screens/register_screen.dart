@@ -74,25 +74,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             SizedBox(height: 30),
-            TextField(
-                controller: usernameController,
-                decoration: customInputDecoration(
-                    hintText: 'Gildong Hong',
-                    suffixIcon: Icon(Icons.person))),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 10, bottom: 5),
+                  child: Text('user name', style: TextStyle(fontSize: 16),),
+                ),
+                TextField(
+                    controller: usernameController,
+                    decoration: customInputDecoration(
+                        hintText: 'Gildong Hong',
+                        suffixIcon: Icon(Icons.person))),
+              ],
+            ),
             SizedBox(height: 15),
-            TextField(
-                controller: emailController,
-                decoration: customInputDecoration(
-                    hintText: 'gildong@example.com',
-                    suffixIcon: Icon(Icons.email_outlined))),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 10, bottom: 5),
+                  child: Text('email', style: TextStyle(fontSize: 16),),
+                ),
+                TextField(
+                    controller: emailController,
+                    decoration: customInputDecoration(
+                        hintText: 'gildong@example.com',
+                        suffixIcon: Icon(Icons.email_outlined))),
+              ],
+            ),
             SizedBox(height: 15),
-            TextField(
-              controller: passwordController,
-              decoration: customInputDecoration(
-                hintText: 'xxxxxxxx',
-                suffixIcon: Icon(Icons.visibility_off_outlined),
-              ),
-              obscureText: true,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 10, bottom: 5),
+                  child: Text('password', style: TextStyle(fontSize: 16),),
+                ),
+                TextField(
+                  controller: passwordController,
+                  decoration: customInputDecoration(
+                    hintText: 'xxxxxxxx',
+                    suffixIcon: Icon(Icons.visibility_off_outlined),
+                  ),
+                  obscureText: true,
+                ),
+              ],
             ),
             SizedBox(height: 50),
             ElevatedButton(

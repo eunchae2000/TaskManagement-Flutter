@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:task_management/screens/detail_screen.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:task_management/screens/members_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
