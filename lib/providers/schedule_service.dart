@@ -706,11 +706,9 @@ class ScheduleService {
         final decodedResponse = jsonDecode(responseBody);
         return decodedResponse['imageUrl'];
       } else {
-        print("Failed to upload image. Status Code: ${response.statusCode}");
         return null;
       }
     } catch (e) {
-      print("Error uploading image: $e");
       return null;
     }
   }
@@ -826,7 +824,7 @@ class ScheduleService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception("비밀번호 재설정 요청 실패: ${response.body}");
+      throw Exception("request password reset failed: ${response.body}");
     }
   }
 
@@ -837,7 +835,7 @@ class ScheduleService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception("비밀번호 재설정 실패: ${response.body}");
+      throw Exception("request password reset failed: ${response.body}");
     }
   }
 
