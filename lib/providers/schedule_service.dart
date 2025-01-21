@@ -819,4 +819,26 @@ class ScheduleService {
     }
   }
 
+  Future<void> requestPasswordReset(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/request-password-reset'),
+      body: {'email': email},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("비밀번호 재설정 요청 실패: ${response.body}");
+    }
+  }
+
+  Future<void> resetPassword(String token, String newPassword) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/reset-password/$token'),
+      body: {'newPassword': newPassword},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("비밀번호 재설정 실패: ${response.body}");
+    }
+  }
+
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:task_management/providers/schedule_service.dart';
 import 'package:task_management/screens/register_screen.dart';
 import 'package:task_management/main.dart';
+import 'package:task_management/screens/request_password_reset.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -66,6 +67,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void navigateToRequestPassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RequestPasswordResetScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily: 'NunitoSemiBold',
                     ),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = navigateToSignUp,
+                      ..onTap = navigateToRequestPassword,
                   ),
                 ),
               ),
