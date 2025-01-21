@@ -62,10 +62,7 @@ class _MemberScreenState extends State<MembersScreen>
         sentInvites = invites;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
-      }
+      throw Exception(e);
     }
   }
 
@@ -77,10 +74,7 @@ class _MemberScreenState extends State<MembersScreen>
         receiveInvites = invites;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
-      }
+     throw Exception(e);
     }
   }
 
@@ -89,10 +83,7 @@ class _MemberScreenState extends State<MembersScreen>
       await scheduleService.respondToInvite(friendId, response);
       _loadReceivedInvites();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
-      }
+      throw Exception(e);
     }
   }
 
@@ -104,10 +95,7 @@ class _MemberScreenState extends State<MembersScreen>
         sentTask = invites;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
-      }
+      throw Exception(e);
     }
   }
 
@@ -119,10 +107,7 @@ class _MemberScreenState extends State<MembersScreen>
         receiveTask = invites;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
-      }
+      throw Exception(e);
     }
   }
 
@@ -132,10 +117,7 @@ class _MemberScreenState extends State<MembersScreen>
       await scheduleService.respondToTask(friendId, taskId, response);
       _loadReceivedTask();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error loading invites: $e')));
-      }
+      throw Exception(e);
     }
   }
 

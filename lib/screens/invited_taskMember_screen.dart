@@ -48,10 +48,7 @@ class _InvitedTaskMemberScreenState extends State<InvitedTaskMemberScreen> {
         friends = friendList;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Friend List Failed')));
-      }
+      throw Exception(e);
     }
   }
 
@@ -76,12 +73,7 @@ class _InvitedTaskMemberScreenState extends State<InvitedTaskMemberScreen> {
 
     if (mounted) {
       if (result['success']) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Task added successfully')));
         Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Task invited failed')));
       }
     }
   }

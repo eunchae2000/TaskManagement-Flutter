@@ -41,23 +41,11 @@ class _SettingScreenState extends State<SettingScreen> {
       List<dynamic> userList = getUser['user'];
       Map<String, dynamic> fetchedUser = userList.isNotEmpty ? userList[0] : {};
 
-      if (fetchedUser.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('No tasks found for the selected category and date')),
-        );
-      }
-
       setState(() {
         user = fetchedUser;
       });
     } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${error.toString()}')),
-      );
+      throw Exception(error);
     }
   }
 

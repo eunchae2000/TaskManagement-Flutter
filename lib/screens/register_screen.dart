@@ -27,24 +27,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (mounted) {
         if (response['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User registered successfully')),
-          );
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => LoginScreen()));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('Failed to register: ${response['message']}')),
-          );
         }
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to register: $e')),
-        );
-      }
+      throw Exception(e);
     } finally {
       setState(() {
         isLoading = false;

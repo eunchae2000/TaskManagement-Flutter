@@ -76,14 +76,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (response['success']) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully!')),
-      );
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${response['message']}')),
-      );
     }
   }
 

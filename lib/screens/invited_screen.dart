@@ -82,21 +82,8 @@ class _InvitedScreenState extends State<InvitedScreen> {
 
       if (!mounted) return;
 
-      if (tasks.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('No tasks found for the selected category and date')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Successfully fetched ${tasks.length} tasks')),
-        );
-      }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${error.toString()}')),
-      );
+      throw Exception(error);
     }
   }
 

@@ -168,14 +168,7 @@ class _UpdateTaskScreenState extends State<UpdateTaskScreen> {
         categories = fetchedCategories;
       });
     } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Load Category Failed'),
-            duration: Duration.zero,
-          ),
-        );
-      }
+      throw Exception(error);
     }
   }
 

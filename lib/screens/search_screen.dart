@@ -53,11 +53,7 @@ class _SearchScreenState extends State<SearchScreen>
         _tasks = tasks;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching tasks: $e')),
-        );
-      }
+      throw Exception(e);
     }
   }
 
@@ -82,10 +78,6 @@ class _SearchScreenState extends State<SearchScreen>
         setState(() {
           filterTasks = [];
         });
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Error: $e')));
-        }
       });
     }
   }
@@ -100,10 +92,6 @@ class _SearchScreenState extends State<SearchScreen>
       });
       return friendList;
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Friend List Failed: $e')));
-      }
       return [];
     }
   }
@@ -122,10 +110,7 @@ class _SearchScreenState extends State<SearchScreen>
         setState(() {
           filterFriends = [];
         });
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Error: $e')));
-        }
+        throw Exception(e);
       });
     }
   }
