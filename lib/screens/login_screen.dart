@@ -15,7 +15,38 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
 
+  Map<String, dynamic>? userData;
+
   final scheduleService = ScheduleService();
+
+  void _googleLogin() async {
+    try {
+      final response = await scheduleService.loginWithGoogle();
+      if (response != null) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Login Successful"),
+            content: Text("Welcome, ${response['name']}!"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        );
+      } else {
+        print('failed login');
+      }
+    } catch (e) {
+      print('An error occurred during login. Please try again.');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   void login() async {
     setState(() {
@@ -133,6 +164,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextStyle(color: Color(0xFFfff6f0), fontSize: 20),
                       ),
               ),
+              IconButton(
+                  onPressed: _googleLogin,
+                  icon: Icon(Icons.g_mobiledata_rounded)),
               SizedBox(height: 50),
               RichText(
                 text: TextSpan(

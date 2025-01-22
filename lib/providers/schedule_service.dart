@@ -2,29 +2,35 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class ScheduleService {
   final String baseUrl = 'http://10.0.2.2:8000';
 
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
 
-  Future<List<dynamic>> fetchSchedules() async {
-    final response = await http.get(Uri.parse('$baseUrl/schedules'));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load schedules');
-    }
-  }
+  Future<Map<String, dynamic>?> loginWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final googleAuth = await googleUser?.authentication;
+      final idToken = googleAuth?.idToken;
 
-  Future<void> addSchedule(Map<String, dynamic> schedule) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/schedules'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(schedule),
-    );
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/google'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'token': idToken}),
+      );
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to add schedule');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['user'];
+      } else {
+        throw Exception("Failed to authenticate with the server");
+      }
+    } catch (e) {
+      print("Error during Google Sign-In: $e");
+      return null;
     }
   }
 
