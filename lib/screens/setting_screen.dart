@@ -44,6 +44,7 @@ class _SettingScreenState extends State<SettingScreen> {
       setState(() {
         user = fetchedUser;
       });
+      print(user);
     } catch (error) {
       throw Exception(error);
     }

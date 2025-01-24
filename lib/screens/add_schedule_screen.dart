@@ -189,7 +189,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       _startTime!.format(context),
       _endTime!.format(context),
       getFormattedDate(_selectedDate),
-      selectedCategoryId ?? 1,
       plans,
     );
     if (mounted) {

@@ -12,7 +12,6 @@ class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool isSentTab = true;
-
   final ScheduleService scheduleService = ScheduleService();
 
   List<Map<String, dynamic>> friends = [];
@@ -41,7 +40,6 @@ class _SearchScreenState extends State<SearchScreen>
       await _fetchTasks();
     }
   }
-
 
   Future<void> _fetchTasks() async {
     if (_selectedDate == null) return;
@@ -86,6 +84,7 @@ class _SearchScreenState extends State<SearchScreen>
     try {
       List<Map<String, dynamic>> friendList =
           await scheduleService.friendsList();
+
       setState(() {
         friends = friendList;
         filterFriends = friendList;
@@ -162,9 +161,27 @@ class _SearchScreenState extends State<SearchScreen>
                   style: TextStyle(fontSize: 20),
                 ),
               ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    child: Text(
+                      'Member (${filterFriends.length})',
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                          backgroundColor: Color(0xffddf2ff),
+                          color: Color(0xff0087ff)),
+                    ),
+                  ),
+                ],
+              ),
               Expanded(
                   child: filterFriends.isEmpty
-                      ? Center(child: Text('No Member Found.'))
+                      ? Center(child: Text('No Member Found.', style: TextStyle(color: Colors.grey),))
                       : ListView.builder(
                           itemCount: filterFriends.length,
                           itemBuilder: (context, index) {
@@ -172,12 +189,16 @@ class _SearchScreenState extends State<SearchScreen>
                             return ListTile(
                               leading: Icon(
                                 Icons.account_circle_rounded,
-                                size: 30,
+                                size: 40,
                                 color: Color(0xffff4700),
                               ),
-                              title: Text(friend['user_name'] ?? 'Unknown'),
-                              subtitle:
-                                  Text(friend['user_email'] ?? 'No email'),
+                              title: Text(
+                                friend['user_name'] ?? 'Unknown',
+                                style: TextStyle(color: Color(0xff271812)),
+                              ),
+                              subtitle: Text(
+                                friend['user_email'] ?? 'No email',
+                              ),
                             );
                           },
                         ))
@@ -209,10 +230,10 @@ class _SearchScreenState extends State<SearchScreen>
                           },
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
-                            backgroundColor: Color(0xffffe7d6),
-                            foregroundColor: Color(0xffff4700),
+                            backgroundColor: Color(0xffddf2ff),
+                            foregroundColor: Color(0xff637899),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
+                              borderRadius: BorderRadius.circular(30),
                             ),
                           ),
                           child: Row(
@@ -222,12 +243,12 @@ class _SearchScreenState extends State<SearchScreen>
                               Text(
                                 'Select Date',
                                 style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(width: 20),
+                              SizedBox(width: 15),
                               Icon(
                                 Icons.date_range_rounded,
-                                color: Color(0xffff4700),
+                                color: Color(0xff637899),
                                 size: 23,
                               ),
                             ],
@@ -309,7 +330,7 @@ class _SearchScreenState extends State<SearchScreen>
             child: Column(
               children: [
                 if (filterTasks.isEmpty)
-                  Center(child: Text('No task found'))
+                  Center(child: Text('No task found', style: TextStyle(color: Colors.grey),))
                 else
                   ListView.builder(
                     shrinkWrap: true,
@@ -405,11 +426,23 @@ class _SearchScreenState extends State<SearchScreen>
   Widget _buildDate() {
     if (_tasks.isEmpty) {
       return Expanded(
-        child: Center(
-          child: Text(
-            'No tasks for selected date',
-            style: TextStyle(fontSize: 16),
-          ),
+        child: Column(
+          children: [
+            Text(
+              _selectedDate != null
+                  ? DateFormat('MMMM d, yyyy').format(_selectedDate!)
+                  : 'No date selected',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff637899)),
+            ),
+            SizedBox(height: 10,),
+            Text(
+              'No tasks for selected date',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
         ),
       );
     }
@@ -522,11 +555,11 @@ InputDecoration customInputDecoration({
   return InputDecoration(
     hintText: hintText,
     suffixIcon: suffixIcon,
-    hintStyle: TextStyle(fontSize: 20),
+    hintStyle: TextStyle(fontSize: 18, color: Colors.grey),
     filled: true,
-    fillColor: Color(0xffffe7d6),
+    fillColor: Color(0x60ddf2ff),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(30),
       borderSide: BorderSide.none,
     ),
     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -10,6 +10,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CalendarScreen extends StatefulWidget {
   final DateTime? date;
+
   CalendarScreen({this.date});
 
   @override
@@ -21,6 +22,18 @@ class _WeekCalendarState extends State<CalendarScreen> {
 
   int? selectedCategoryId;
   List<Map<String, dynamic>> tasks = [];
+  Map<String, int> _taskCounts = {};
+
+  Future<void> _fetchTaskCounts() async {
+    try {
+      final count = await _scheduleService.fetchTaskCounts();
+      setState(() {
+        _taskCounts = count;
+      });
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 
   bool isTaskExpired(String taskDate, String taskEndTime) {
     DateTime now = DateTime.now();
@@ -46,6 +59,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
   void initState() {
     super.initState();
     _fetchTasks();
+    _fetchTaskCounts();
   }
 
   final ScheduleService _scheduleService = ScheduleService();
@@ -219,7 +233,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                   child: Text(
                     stringMonth[index],
                     style: TextStyle(
-                        fontFamily: 'FredokaSemiBold',
+                        fontFamily: 'NunitoBold',
                         color: monthNumber == _selectedDay.month
                             ? Color(0xffffe7d6)
                             : Color(0xffff4700),
@@ -300,6 +314,9 @@ class _WeekCalendarState extends State<CalendarScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(7, (index) {
                 final DateTime currentDay = weekDay[index];
+                print(getFormattedDate(currentDay));
+                final taskCount = _taskCounts[getFormattedDate(currentDay)];
+                print(_taskCounts);
                 final isSelected =
                     currentDay.day == selectedDate.selectedDate.day &&
                         currentDay.month == selectedDate.selectedDate.month &&
@@ -334,9 +351,11 @@ class _WeekCalendarState extends State<CalendarScreen> {
                             fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 4),
+                      if (taskCount != 0 && taskCount != null)
+                        Icon(Icons.circle_rounded, size: 3,),
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 35,
+                        height: 35,
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Color(0xffffe7d6)
@@ -466,7 +485,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                             Text(
                               '${task['task_startTime']} - ${task['task_endTime']}',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 color: Colors.grey.shade600,
                               ),
                             ),
@@ -477,7 +496,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
                         Text(
                           task['task_title']!,
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 22, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -490,9 +509,6 @@ class _WeekCalendarState extends State<CalendarScreen> {
                             '${task['task_description']}',
                             style: TextStyle(color: Colors.grey.shade600),
                           ),
-                        ),
-                        SizedBox(
-                          height: 10,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -658,5 +674,4 @@ Widget _memberAvatars(List<String> members) {
       ),
     ),
   );
-
 }

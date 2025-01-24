@@ -34,8 +34,8 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> register(String userName, String userEmail,
-      String userPassword) async {
+  Future<Map<String, dynamic>> register(
+      String userName, String userEmail, String userPassword) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register'),
       headers: {'Content-Type': 'application/json'},
@@ -60,8 +60,8 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> login(String userEmail,
-      String userPassword) async {
+  Future<Map<String, dynamic>> login(
+      String userEmail, String userPassword) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
@@ -70,11 +70,14 @@ class ScheduleService {
         'user_password': userPassword,
       }),
     );
+    print(response);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final userId = data['user_id'];
       final token = data['token'];
+      print(data);
+      print(userId);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', userId.toString());
@@ -107,7 +110,6 @@ class ScheduleService {
       throw Exception('Failed to log out $e');
     }
   }
-
 
   Future<List<Map<String, dynamic>>> fetchCategories() async {
     try {
@@ -165,13 +167,13 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> addTask(List<String> friendNames,
+  Future<Map<String, dynamic>> addTask(
+      List<String> friendNames,
       String taskTitle,
       String taskDescription,
       String taskStartTime,
       String taskEndTime,
       String taskDateTime,
-      int categoryId,
       List<Map<String, String?>> plans) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -192,7 +194,6 @@ class ScheduleService {
       'task_startTime': taskStartTime,
       'task_endTime': taskEndTime,
       'task_dateTime': taskDateTime,
-      'categorie_id': categoryId,
       'friend_name': friendNames,
       'user_id': userId,
       'plans': plans,
@@ -224,15 +225,17 @@ class ScheduleService {
     }
   }
 
-  Future<Map<String, dynamic>> updateTask(int taskId,
-      String taskTitle,
-      String taskDescription,
-      String taskStartTime,
-      String taskEndTime,
-      String taskDateTime,
-      int categorieId,
-      List<String> friendNames,
-      List<Map<String, dynamic>> plans,) async {
+  Future<Map<String, dynamic>> updateTask(
+    int taskId,
+    String taskTitle,
+    String taskDescription,
+    String taskStartTime,
+    String taskEndTime,
+    String taskDateTime,
+    int categorieId,
+    List<String> friendNames,
+    List<Map<String, dynamic>> plans,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
     try {
@@ -278,6 +281,25 @@ class ScheduleService {
     }
   }
 
+  Future<Map<String, int>> fetchTaskCounts() async {
+    try {
+      final response = await http.get(
+          Uri.parse('$baseUrl/tasks/count'),
+          headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return {for (var item in data) item['date']: item['task_count']};
+      } else {
+        throw Exception('Server returned status code ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching task counts: $e');
+      throw Exception('Error fetching task counts');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchTask(String selectDay) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -316,10 +338,10 @@ class ScheduleService {
 
   Future<List<Map<String, dynamic>>> searchFriends(String query) async {
     final response =
-    await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
+        await http.get(Uri.parse('$baseUrl/searchFriends?query=$query'));
     if (response.statusCode == 200) {
       List<Map<String, dynamic>> friends =
-      List<Map<String, dynamic>>.from(json.decode(response.body));
+          List<Map<String, dynamic>>.from(json.decode(response.body));
       return friends;
     } else {
       throw Exception('Failed to load friends');
@@ -608,8 +630,7 @@ class ScheduleService {
   Future<Map<String, dynamic>> fetchAvailableFriends(int taskId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
-    final url = Uri.parse(
-        "$baseUrl/available-friend/$taskId/$userId");
+    final url = Uri.parse("$baseUrl/available-friend/$taskId/$userId");
 
     try {
       final response = await http.get(url);
@@ -617,10 +638,10 @@ class ScheduleService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
 
-        List<Map<String, dynamic>> friends = List<Map<String, dynamic>>.from(
-            data['friendResult']);
-        List<Map<String, dynamic>> tasks = List<Map<String, dynamic>>.from(
-            data['taskResult']);
+        List<Map<String, dynamic>> friends =
+            List<Map<String, dynamic>>.from(data['friendResult']);
+        List<Map<String, dynamic>> tasks =
+            List<Map<String, dynamic>>.from(data['taskResult']);
 
         return {
           'friendResult': friends,
@@ -628,16 +649,17 @@ class ScheduleService {
         };
       } else {
         throw Exception(
-            'Failed to load available friends. Status code: ${response
-                .statusCode}');
+            'Failed to load available friends. Status code: ${response.statusCode}');
       }
     } catch (error) {
       throw error;
     }
   }
 
-  Future<Map<String, dynamic>> addTaskInvitation(List<String> friendNames,
-      int taskId,) async {
+  Future<Map<String, dynamic>> addTaskInvitation(
+    List<String> friendNames,
+    int taskId,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? userId = prefs.getString('user_id');
@@ -703,7 +725,8 @@ class ScheduleService {
     try {
       final uri = Uri.parse("$baseUrl/upload");
       final request = http.MultipartRequest('POST', uri);
-      request.files.add(await http.MultipartFile.fromPath('profilePhoto', imageFile.path));
+      request.files.add(
+          await http.MultipartFile.fromPath('profilePhoto', imageFile.path));
       request.headers.addAll({'Content-Type': 'multipart/form-data'});
 
       final response = await request.send();
@@ -720,13 +743,13 @@ class ScheduleService {
   }
 
   Future<Map<String, dynamic>> editUser(
-      String userName,
-      String email,
-      String phone,
-      File? profilePhoto,
-      String gender,
-      String birthday,
-      ) async {
+    String userName,
+    String email,
+    String phone,
+    File? profilePhoto,
+    String gender,
+    String birthday,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
 
@@ -755,8 +778,6 @@ class ScheduleService {
       throw Exception('Failed to update user profile');
     }
   }
-
-
 
   Future<List<Map<String, dynamic>>> searchTasks(String query) async {
     final response = await http.post(
@@ -796,9 +817,8 @@ class ScheduleService {
     }
   }
 
-
-
-  Future<Map<String, dynamic>> notificationsAsRead(String notificationType) async {
+  Future<Map<String, dynamic>> notificationsAsRead(
+      String notificationType) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
     try {
@@ -844,5 +864,4 @@ class ScheduleService {
       throw Exception("request password reset failed: ${response.body}");
     }
   }
-
 }
