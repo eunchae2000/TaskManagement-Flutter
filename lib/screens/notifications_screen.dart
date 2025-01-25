@@ -158,7 +158,10 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         return Column(
           children: [
             _buildNotificationTile(notification),
-            Divider(),
+            Divider(
+              height: 0,
+              color: Color(0xffbda69e),
+            ),
           ],
         );
       }).toList(),
@@ -167,64 +170,70 @@ class _NotificationsScreenState extends State<NotificationsScreen>
 
   Widget _buildNotificationTile(Map<String, dynamic> notification) {
     final isTask = notification['notifications_type'] == 'task';
-    print(isTask);
 
-    return ListTile(
-      leading: notification['user_profile'] == null
-          ? Icon(
-              Icons.account_circle,
-              size: 50,
-              color: Color(0xffffe7d6),
-            )
-          : ClipOval(
-              child: Image.network(
-                notification['user_profile']!,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
+    return Container(
+      padding: EdgeInsets.only(top: 5, bottom: 5),
+      decoration: BoxDecoration(
+        color: Color(0xfffff6f0),
+      ),
+      child: ListTile(
+        leading: notification['user_profile'] == null
+            ? Icon(
+                Icons.account_circle,
+                size: 50,
+                color: Color(0xffff4700),
+              )
+            : ClipOval(
+                child: Image.network(
+                  notification['user_profile']!,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
               ),
+        title: Text(
+          '${notification['sender_name']}',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isTask
+                  ? (notification['notifications_action'] == 'request'
+                      ? 'sent a task participation request'
+                      : notification['notifications_action'] == 'response'
+                          ? ' received a response to your task participation'
+                          : ' task action not recognized')
+                  : 'sent a member request',
             ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '${notification['sender_name']}',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            children: [
-              Icon(
-                Icons.circle_rounded,
-                size: 6,
-                color: Colors.grey,
-              ),
-              SizedBox(
-                width: 8,
-              ),
-              Text(
-                formatTimeAgo(notification['notifications_createdAt']),
-                style: TextStyle(fontSize: 10),
-              ),
-            ],
-          )
-        ],
-      ),
-      subtitle: Text(
-        isTask
-            ? (notification['notifications_action'] == 'request'
-                ? 'sent a task participation request'
-                : notification['notifications_action'] == 'response'
-                    ? ' received a response to your task participation'
-                    : ' task action not recognized')
-            : ' sent a member request',
-      ),
-      trailing: notification['notifications_status'] == 'unread'
-          ? Icon(
-              Icons.circle,
-              color: Color(0xffff4700),
-              size: 8,
+            SizedBox(height: 5,),
+            Row(
+              children: [
+                Icon(
+                  Icons.circle_rounded,
+                  size: 6,
+                  color: Colors.grey,
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  formatTimeAgo(notification['notifications_createdAt']),
+                  style: TextStyle(fontSize: 10),
+                ),
+              ],
             )
-          : SizedBox.shrink(),
+          ],
+        ),
+        trailing: notification['notifications_status'] == 'unread'
+            ? Icon(
+                Icons.circle,
+                color: Color(0xffff4700),
+                size: 8,
+              )
+            : SizedBox.shrink(),
+      ),
     );
   }
 }

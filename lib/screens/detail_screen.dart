@@ -25,7 +25,6 @@ class _DetailScreenState extends State<DetailScreen> {
     try {
       final responseData =
           await _scheduleService.getParticipant(widget.task['task_id']);
-      print(responseData);
       setState(() {
         plans = List<Map<String, dynamic>>.from(responseData['planResult']);
       });

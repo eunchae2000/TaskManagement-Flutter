@@ -408,7 +408,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
               decoration: BoxDecoration(
-                color: Color(0xfff6e1de),
+                color: Color(0xfffff6f0),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: DropdownButton2<int>(
@@ -571,7 +571,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               child: ElevatedButton(
                 onPressed: _addNewPlan,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xffa76962),
+                  backgroundColor: Color(0xffb88572),
                   foregroundColor: Color(0xffa3a3a3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
@@ -581,7 +581,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                 child: Icon(
                   Icons.add_rounded,
                   size: 40,
-                  color: Color(0xfff5f5f5),
+                  color: Color(0xfffff6f0),
                 ),
               ),
             ),
@@ -608,7 +608,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
               decoration: BoxDecoration(
-                color: Color(0xfff6e1de),
+                color: Color(0xfffff6f0),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: DropdownButton<Map<String, dynamic>>(
@@ -700,7 +700,7 @@ InputDecoration customInputDecoration({
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: Color(0xfff6e1de),
+    fillColor: Color(0xfffff6f0),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(15),
       borderSide: BorderSide.none,

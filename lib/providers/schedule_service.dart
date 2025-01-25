@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class ScheduleService {
-  final String baseUrl = 'http://10.0.2.2:8000';
+  final String baseUrl = 'http://192.168.35.29:8000';
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
@@ -29,7 +29,6 @@ class ScheduleService {
         throw Exception("Failed to authenticate with the server");
       }
     } catch (e) {
-      print("Error during Google Sign-In: $e");
       return null;
     }
   }
@@ -70,14 +69,11 @@ class ScheduleService {
         'user_password': userPassword,
       }),
     );
-    print(response);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final userId = data['user_id'];
       final token = data['token'];
-      print(data);
-      print(userId);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', userId.toString());
@@ -295,7 +291,6 @@ class ScheduleService {
         throw Exception('Server returned status code ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching task counts: $e');
       throw Exception('Error fetching task counts');
     }
   }
@@ -753,7 +748,7 @@ class ScheduleService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
 
-    final uri = Uri.parse('http://your-server.com/edit-user/$userId');
+    final uri = Uri.parse('$baseUrl/edit-user/$userId');
     final request = http.MultipartRequest('PUT', uri);
 
     request.fields['user_name'] = userName;

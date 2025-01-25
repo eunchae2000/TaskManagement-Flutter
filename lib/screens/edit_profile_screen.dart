@@ -37,8 +37,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ? File(widget.user['user_profile'])
         : null;
     _selectedGender = widget.user['user_gender'];
+    print(widget.user['user_birthday']);
     _selectedBirthday = widget.user['user_birthday'] != null
-        ? DateTime.parse(widget.user['user_birthday'])
+        ? DateTime.tryParse(widget.user['user_birthday'])
         : null;
   }
 
@@ -103,32 +104,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           TextButton(
-            onPressed: () {
-              _updateProfile();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingScreen(),
-                ),
-              );
-            },
-            child: Text(
-              'Complete',
-              style: TextStyle(color: Colors.black),
-            ),
-          )
+              onPressed: () {
+                _updateProfile();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingScreen(),
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  Text(
+                    'Complete',
+                    style: TextStyle(color: Colors.black, fontSize: 17),
+                  ),
+                  SizedBox(width: 10,),
+                  Icon(
+                    Icons.check_rounded,
+                    size: 20,
+                    color: Color(0xffff4700),
+                  ),
+                ],
+              ))
         ],
       )),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Container(
               padding: EdgeInsets.only(top: 20, bottom: 20),
               width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Color(0xfffff4ec),
-                  borderRadius: BorderRadius.circular(10)),
               child: Column(
                 children: [
                   Row(
@@ -139,7 +145,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         children: [
                           CircleAvatar(
                             radius: 50,
-                            backgroundColor: Colors.grey,
+                            backgroundColor: Color(0x20ff4700),
                             child: _selectedImage != null
                                 ? ClipOval(child: Image.file(_selectedImage!))
                                 : widget.user['user_profile'] != null
@@ -163,7 +169,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   icon: Icon(
                                     Icons.camera_alt_rounded,
                                     size: 15,
-                                    color: Colors.black54,
+                                    color: Color(0xffff4700),
                                   ),
                                 ),
                               )),
@@ -171,7 +177,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       )
                     ],
                   ),
-                  Text('${widget.user['user_email']}')
+                  SizedBox(height: 10,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.email_rounded),
+                      SizedBox(width: 10,),
+                      Text(
+                        '${widget.user['user_email']}',
+                        style: TextStyle(fontSize: 17),
+                      )
+                    ],
+                  )
+
                 ],
               ),
             ),
@@ -179,15 +197,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               height: 20,
             ),
             Container(
-              padding: EdgeInsets.all(16),
+              height: MediaQuery.of(context).size.height,
+              padding: EdgeInsets.all(25),
               decoration: BoxDecoration(
-                color: Color(0xfffff4ec),
-                borderRadius: BorderRadius.circular(10),
+                color: Color(0xff637899),
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('User Name'),
+                  Text(
+                    'User Name',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -198,7 +222,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  Text('Email'),
+                  Text(
+                    'Email',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -209,7 +236,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  Text('Phone Number'),
+                  Text(
+                    'Phone Number',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -220,7 +250,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  Text('Gender'),
+                  Text(
+                    'Gender',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -244,7 +277,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  Text('Birth of day'),
+                  Text(
+                    'Birth of day',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -281,7 +317,7 @@ InputDecoration customInputDecoration({
     hintText: hintText,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: Color(0xfff6e1de),
+    fillColor: Color(0xfffff7f2),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(15),
       borderSide: BorderSide.none,

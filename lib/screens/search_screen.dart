@@ -189,7 +189,7 @@ class _SearchScreenState extends State<SearchScreen>
                             return ListTile(
                               leading: Icon(
                                 Icons.account_circle_rounded,
-                                size: 40,
+                                size: 50,
                                 color: Color(0xffff4700),
                               ),
                               title: Text(

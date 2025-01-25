@@ -74,7 +74,7 @@ class _MemberScreenState extends State<MembersScreen>
         receiveInvites = invites;
       });
     } catch (e) {
-     throw Exception(e);
+      throw Exception(e);
     }
   }
 
@@ -175,57 +175,70 @@ class _MemberScreenState extends State<MembersScreen>
         children: [
           Column(
             children: [
-              Padding(
-                padding: EdgeInsets.only(left: 15, right: 15, top: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          isSentTab = true;
-                        });
-                      },
-                      style: TextButton.styleFrom(
-                        backgroundColor:
-                            isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+              SizedBox(height: 10,),
+              IntrinsicWidth(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Color(0xffddf2ff),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            isSentTab = true;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                              isSentTab ? Color(0xff637899) : Color(0xffddf2ff),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          'Request sent',
+                          style: TextStyle(
+                            letterSpacing: 0.5,
+                            fontSize: 13,
+                            color: isSentTab
+                                ? Color(0xffddf2ff)
+                                : Color(0xff637899),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        'To',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: isSentTab ? Colors.white : Color(0xffff4700),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            isSentTab = false;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                              isSentTab ? Color(0xffddf2ff) : Color(0xff637899),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          'Request receive',
+                          style: TextStyle(
+                            letterSpacing: 0.5,
+                            fontSize: 13,
+                            color: !isSentTab
+                                ? Color(0xffddf2ff)
+                                : Color(0xff637899),
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          isSentTab = false;
-                        });
-                      },
-                      style: TextButton.styleFrom(
-                        backgroundColor:
-                            !isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        'From',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: !isSentTab ? Colors.white : Color(0xffff4700),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Expanded(
@@ -238,57 +251,70 @@ class _MemberScreenState extends State<MembersScreen>
           // Project tab
           Column(
             children: [
-              Padding(
-                padding: EdgeInsets.only(left: 15, right: 15, top: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          isSentTab = true;
-                        });
-                      },
-                      style: TextButton.styleFrom(
-                        backgroundColor:
-                            isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+              SizedBox(height: 10,),
+              IntrinsicWidth(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Color(0xffddf2ff),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            isSentTab = true;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                          isSentTab ? Color(0xff637899) : Color(0xffddf2ff),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          'Request sent',
+                          style: TextStyle(
+                            letterSpacing: 0.5,
+                            fontSize: 13,
+                            color: isSentTab
+                                ? Color(0xffddf2ff)
+                                : Color(0xff637899),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        'To',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: isSentTab ? Colors.white : Color(0xffff4700),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            isSentTab = false;
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                          isSentTab ? Color(0xffddf2ff) : Color(0xff637899),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          'Request receive',
+                          style: TextStyle(
+                            letterSpacing: 0.5,
+                            fontSize: 13,
+                            color: !isSentTab
+                                ? Color(0xffddf2ff)
+                                : Color(0xff637899),
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          isSentTab = false;
-                        });
-                      },
-                      style: TextButton.styleFrom(
-                        backgroundColor:
-                            !isSentTab ? Color(0xffff4700) : Color(0xffffe7d6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        'From',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: !isSentTab ? Colors.white : Color(0xffff4700),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Expanded(
@@ -312,7 +338,7 @@ class _MemberScreenState extends State<MembersScreen>
                   leading: Icon(
                     Icons.account_circle,
                     size: 50,
-                    color: Color(0xff637899),
+                    color: Color(0xffff4700),
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -335,7 +361,7 @@ class _MemberScreenState extends State<MembersScreen>
                           padding: EdgeInsets.only(
                               left: 7, right: 7, top: 3, bottom: 3),
                           decoration: BoxDecoration(
-                            color: Color(0xffd9d9d9),
+                            color: Color(0xffddf2ff),
                             shape: BoxShape.rectangle,
                             borderRadius: BorderRadius.circular(15),
                           ),
@@ -360,7 +386,7 @@ class _MemberScreenState extends State<MembersScreen>
                   leading: Icon(
                     Icons.account_circle,
                     size: 50,
-                    color: Color(0xff637899),
+                    color: Color(0xffff4700),
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -456,7 +482,7 @@ class _MemberScreenState extends State<MembersScreen>
                   leading: Icon(
                     Icons.account_circle,
                     size: 50,
-                    color: Color(0xff637899),
+                    color: Color(0xffff4700),
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -516,7 +542,7 @@ class _MemberScreenState extends State<MembersScreen>
                   leading: Icon(
                     Icons.account_circle,
                     size: 50,
-                    color: Color(0xff637899),
+                    color: Color(0xffff4700),
                   ),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

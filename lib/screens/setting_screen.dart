@@ -44,7 +44,6 @@ class _SettingScreenState extends State<SettingScreen> {
       setState(() {
         user = fetchedUser;
       });
-      print(user);
     } catch (error) {
       throw Exception(error);
     }
@@ -59,59 +58,50 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: null,
-      ),
-      body: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-        child: user.isNotEmpty
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  user['user_profile'] == null
-                      ? Icon(
-                          Icons.account_circle,
-                          size: 100,
-                          color: Color(0xffffe7d6),
-                        )
-                      : ClipOval(
-                          child: Image.network(
-                            user['user_profile']!,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    user['user_name'],
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    user['user_email'],
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 20,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Divider(
-                      color: Colors.grey,
-                      thickness: 0.5,
-                      height: 20,
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        appBar: AppBar(
+          title: null,
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+            child: user.isNotEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      CustomTextButton(
+                      user['user_profile'] == null
+                          ? Icon(
+                              Icons.account_circle,
+                              size: 120,
+                              color: Color(0xffff4700),
+                            )
+                          : ClipOval(
+                              child: Image.network(
+                                user['user_profile']!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        user['user_name'],
+                        style: TextStyle(
+                            fontSize: 25, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        user['user_email'],
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 20,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                                 context,
@@ -120,104 +110,122 @@ class _SettingScreenState extends State<SettingScreen> {
                                           user: user,
                                         )));
                           },
-                          leadingIcon: Icons.person_rounded,
-                          text: 'Edit User'),
-                      CustomTextButton(
-                          onPressed: () {},
-                          leadingIcon: Icons.language_rounded,
-                          text: 'Language'),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  WidgetStateProperty.all(Color(0xff2f4858)),
+                              foregroundColor:
+                                  WidgetStatePropertyAll(Color(0xffddf2ff))),
+                          child: Text(
+                            'Edit Profile',
+                            style: TextStyle(fontSize: 17),
+                          )),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                            color: Color(0x20ff4700),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xffffe7d6),
-                                    shape: BoxShape.circle,
+                            CustomTextButton(
+                                onPressed: () {},
+                                leadingIcon: Icons.language_rounded,
+                                text: 'Language'),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(5),
+                                        child: Icon(
+                                          Icons.notifications_active_rounded,
+                                          color: Color(0xff2f4858),
+                                          size: 20,
+                                        ),
+                                      ),
+                                      SizedBox(width: 15),
+                                      Text(
+                                        'Push Notifications',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xff2f4858)),
+                                      ),
+                                    ],
                                   ),
-                                  child: Icon(
-                                    Icons.notifications_active_outlined,
-                                    color: Color(0xffff4700),
-                                    size: 20,
+                                  Theme(
+                                    data: ThemeData(useMaterial3: false),
+                                    child: Switch(
+                                      value: isNotificationEnabled,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          isNotificationEnabled = value;
+                                        });
+                                      },
+                                      activeColor: Color(0xff2f4858),
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 15),
-                                Text(
-                                  'Push Notifications',
-                                  style: TextStyle(
-                                      fontSize: 16, color: Color(0xffff4700)),
-                                ),
-                              ],
-                            ),
-                            Theme(
-                              data: ThemeData(useMaterial3: false),
-                              child: Switch(
-                                value: isNotificationEnabled,
-                                onChanged: (value) {
-                                  setState(() {
-                                    isNotificationEnabled = value;
-                                  });
-                                },
-                                activeColor: Color(0xffff4700),
+                                ],
                               ),
-                            ),
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                            color: Color(0x20ff4700),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomTextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => FAQScreen()));
+                                },
+                                leadingIcon: Icons.help_rounded,
+                                text: 'FAQ'),
+                            CustomTextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SendFeedbackScreen()));
+                                },
+                                leadingIcon: Icons.feedback_rounded,
+                                text: 'Send Feedback'),
+                            CustomTextButton(
+                                onPressed: () {},
+                                leadingIcon: Icons.support_rounded,
+                                text: 'Help & Support'),
+                            CustomTextButton(
+                                onPressed: () {
+                                  logout();
+                                },
+                                leadingIcon: Icons.logout_rounded,
+                                text: 'Log out'),
                           ],
                         ),
                       )
                     ],
+                  )
+                : Center(
+                    child: Text('No user data found'),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Divider(
-                      color: Colors.grey,
-                      thickness: 0.5,
-                      height: 20,
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => FAQScreen()));
-                          },
-                          leadingIcon: Icons.help_rounded,
-                          text: 'FAQ'),
-                      CustomTextButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        SendFeedbackScreen()));
-                          },
-                          leadingIcon: Icons.feedback_rounded,
-                          text: 'Send Feedback'),
-                      CustomTextButton(
-                          onPressed: () {},
-                          leadingIcon: Icons.support_rounded,
-                          text: 'Help & Support'),
-                      CustomTextButton(
-                          onPressed: () {
-                            logout();
-                          },
-                          leadingIcon: Icons.logout_rounded,
-                          text: 'Log out'),
-                    ],
-                  ),
-                ],
-              )
-            : Center(
-                child: Text('No user data found'),
-              ),
-      ),
-    );
+          ),
+        ));
   }
 }
