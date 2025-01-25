@@ -626,6 +626,7 @@ router.get("/sentTask/:user_id", async (req, res) => {
     );
 
     const task = await (await db).query("SELECT * FROM task");
+    console.log(task);
     return res.status(200).json(sent);
   } catch (error) {
     console.log(error);
