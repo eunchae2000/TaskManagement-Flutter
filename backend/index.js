@@ -34,6 +34,10 @@ router.post("/register", async (req, res) => {
   const { user_name, user_email, user_password } = req.body;
 
   if (!user_name || !user_email || !user_password) {
+<<<<<<< HEAD
+=======
+    console.log(user_name);
+>>>>>>> 616f688 (update backend')
     return res.status(400).send("Missing required fields");
   }
 
@@ -57,16 +61,28 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { user_email, user_password } = req.body;
+<<<<<<< HEAD
+=======
+  console.log(user_email);
+>>>>>>> 616f688 (update backend')
 
   try {
     const query =
       "Select * from user where user_email = ? and user_password = ?";
     const [rows] = await (await db).query(query, [user_email, user_password]);
+<<<<<<< HEAD
+=======
+    console.log(rows);
+>>>>>>> 616f688 (update backend')
     if (rows.length === 0) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
+<<<<<<< HEAD
+=======
+    console.log("pass");
+>>>>>>> 616f688 (update backend')
 
     const user = rows[0];
 
@@ -144,6 +160,10 @@ router.post("/post", async (req, res) => {
   const [userRows] = await (
     await db
   ).query("SELECT user_id FROM user WHERE user_id = ?", [user_id]);
+<<<<<<< HEAD
+=======
+  console.log(userRows);
+>>>>>>> 616f688 (update backend')
 
   if (userRows.length === 0) {
     return res.status(400).json({ message: "Invalid user_id" });
@@ -186,6 +206,10 @@ router.post("/post", async (req, res) => {
     }
 
     for (let friendName of friend_name) {
+<<<<<<< HEAD
+=======
+      console.log(friendName);
+>>>>>>> 616f688 (update backend')
       const [friendResult] = await (
         await db
       ).query("select user_id from user where user_name=?", [friendName]);
@@ -383,6 +407,10 @@ router.get("/tasks/count", async (req, res) => {
       ORDER BY task_dateTime
     `;
     const [rows] = await (await db).query(query);
+<<<<<<< HEAD
+=======
+    console.log(rows);
+>>>>>>> 616f688 (update backend')
     res.json({ success: true, data: rows });
   } catch (err) {
     console.error(err);
