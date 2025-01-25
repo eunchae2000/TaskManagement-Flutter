@@ -34,7 +34,6 @@ router.post("/register", async (req, res) => {
   const { user_name, user_email, user_password } = req.body;
 
   if (!user_name || !user_email || !user_password) {
-    console.log(user_name);
     return res.status(400).send("Missing required fields");
   }
 
@@ -58,19 +57,16 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { user_email, user_password } = req.body;
-  console.log(user_email);
 
   try {
     const query =
       "Select * from user where user_email = ? and user_password = ?";
     const [rows] = await (await db).query(query, [user_email, user_password]);
-    console.log(rows);
     if (rows.length === 0) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    console.log("pass");
 
     const user = rows[0];
 
@@ -148,7 +144,6 @@ router.post("/post", async (req, res) => {
   const [userRows] = await (
     await db
   ).query("SELECT user_id FROM user WHERE user_id = ?", [user_id]);
-  console.log(userRows);
 
   if (userRows.length === 0) {
     return res.status(400).json({ message: "Invalid user_id" });
@@ -191,7 +186,6 @@ router.post("/post", async (req, res) => {
     }
 
     for (let friendName of friend_name) {
-      console.log(friendName);
       const [friendResult] = await (
         await db
       ).query("select user_id from user where user_name=?", [friendName]);
@@ -389,7 +383,6 @@ router.get("/tasks/count", async (req, res) => {
       ORDER BY task_dateTime
     `;
     const [rows] = await (await db).query(query);
-    console.log(rows);
     res.json({ success: true, data: rows });
   } catch (err) {
     console.error(err);
@@ -605,7 +598,6 @@ router.get("/sentTask/:user_id", async (req, res) => {
     );
 
     const task = await (await db).query("SELECT * FROM task");
-    console.log(task);
     return res.status(200).json(sent);
   } catch (error) {
     console.log(error);
