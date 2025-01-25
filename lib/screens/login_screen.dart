@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print('failed login');
       }
     } catch (e) {
-      print('An error occurred during login. Please try again.');
+      throw Exception(e);
     } finally {
       setState(() {
         isLoading = false;

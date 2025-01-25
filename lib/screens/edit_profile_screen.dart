@@ -37,7 +37,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ? File(widget.user['user_profile'])
         : null;
     _selectedGender = widget.user['user_gender'];
-    print(widget.user['user_birthday']);
     _selectedBirthday = widget.user['user_birthday'] != null
         ? DateTime.tryParse(widget.user['user_birthday'])
         : null;

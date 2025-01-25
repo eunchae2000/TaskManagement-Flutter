@@ -314,9 +314,7 @@ class _WeekCalendarState extends State<CalendarScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(7, (index) {
                 final DateTime currentDay = weekDay[index];
-                print(getFormattedDate(currentDay));
                 final taskCount = _taskCounts[getFormattedDate(currentDay)];
-                print(_taskCounts);
                 final isSelected =
                     currentDay.day == selectedDate.selectedDate.day &&
                         currentDay.month == selectedDate.selectedDate.month &&
