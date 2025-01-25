@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class ScheduleService {
-  final String baseUrl = 'http://192.168.35.29:8000';
+  final String baseUrl = 'http://10.0.2.2:8000';
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
